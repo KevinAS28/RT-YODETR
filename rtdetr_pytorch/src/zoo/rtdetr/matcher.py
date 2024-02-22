@@ -5,6 +5,8 @@ Modules to compute the matching cost and solve the corresponding LSAP.
 by lyuwenyu
 """
 
+import traceback
+
 import torch
 import torch.nn.functional as F 
 
@@ -85,7 +87,12 @@ class HungarianMatcher(nn.Module):
         # but approximate it in 1 - proba[target class].
         # The 1 is a constant that doesn't change the matching, it can be ommitted.
         if self.use_focal_loss:
-            out_prob = out_prob[:, tgt_ids]
+            try:
+                out_prob = out_prob[:, tgt_ids]
+            except Exception as e:
+                traceback.print_exc()
+                print('len(out_prob):', len(out_prob), 'tgt_ids:', tgt_ids, 'out_prob:', out_prob)
+                raise Exception('ERROR')
             neg_cost_class = (1 - self.alpha) * (out_prob**self.gamma) * (-(1 - out_prob + 1e-8).log())
             pos_cost_class = self.alpha * ((1 - out_prob)**self.gamma) * (-(out_prob + 1e-8).log())
             cost_class = pos_cost_class - neg_cost_class        
