@@ -33,4 +33,4 @@ val_dataloader:
   shuffle: False
   batch_size: 32
   num_workers: 4
-  drop_last: False
+  drop_last: True

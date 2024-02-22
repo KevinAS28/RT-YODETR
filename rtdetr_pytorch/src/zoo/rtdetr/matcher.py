@@ -91,7 +91,7 @@ class HungarianMatcher(nn.Module):
                 out_prob = out_prob[:, tgt_ids]
             except Exception as e:
                 traceback.print_exc()
-                print('len(out_prob):', len(out_prob), 'tgt_ids:', tgt_ids, 'out_prob:', out_prob)
+                print('len(out_prob):', len(out_prob), 'tgt_ids:', tgt_ids, 'out_prob.shape:', out_prob.shape)
                 raise Exception('ERROR')
             neg_cost_class = (1 - self.alpha) * (out_prob**self.gamma) * (-(1 - out_prob + 1e-8).log())
             pos_cost_class = self.alpha * ((1 - out_prob)**self.gamma) * (-(out_prob + 1e-8).log())
