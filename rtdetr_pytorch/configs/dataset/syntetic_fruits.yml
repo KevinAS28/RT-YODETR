@@ -15,7 +15,7 @@ train_dataloader:
       type: Compose
       ops: ~
   shuffle: True
-  batch_size: 8
+  batch_size: 32
   num_workers: 4
   drop_last: True
 
@@ -31,6 +31,6 @@ val_dataloader:
       ops: ~
 
   shuffle: False
-  batch_size: 8
+  batch_size: 32
   num_workers: 4
   drop_last: False
