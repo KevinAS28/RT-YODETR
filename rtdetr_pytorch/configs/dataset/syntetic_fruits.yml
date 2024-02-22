@@ -1,0 +1,36 @@
+# https://public.roboflow.com/object-detection/synthetic-fruit/1
+
+task: detection
+
+num_classes: 63
+remap_mscoco_category: False
+
+train_dataloader:
+  type: DataLoader
+  dataset:
+    type: CocoDetection
+    img_folder: /content/dataset/train/
+    ann_file: /content/dataset/train_annotations.json
+    transforms:
+      type: Compose
+      ops: ~
+  shuffle: True
+  batch_size: 8
+  num_workers: 4
+  drop_last: True
+
+
+val_dataloader:
+  type: DataLoader
+  dataset:
+    type: CocoDetection
+    img_folder: /content/dataset/valid/
+    ann_file: /content/dataset/valid_annotations.json
+    transforms:
+      type: Compose
+      ops: ~
+
+  shuffle: False
+  batch_size: 8
+  num_workers: 4
+  drop_last: False
