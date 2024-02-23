@@ -15,7 +15,7 @@ import torchvision
 from .box_ops import box_cxcywh_to_xyxy, box_iou, generalized_box_iou
 
 from src.misc.dist import get_world_size, is_dist_available_and_initialized
-from src.core import register
+from src.core import register, DEFAULT_NUM_CLASSES
 
 
 
@@ -29,7 +29,7 @@ class SetCriterion(nn.Module):
     __share__ = ['num_classes', ]
     __inject__ = ['matcher', ]
 
-    def __init__(self, matcher, weight_dict, losses, alpha=0.2, gamma=2.0, eos_coef=1e-4, num_classes=80):
+    def __init__(self, matcher, weight_dict, losses, alpha=0.2, gamma=2.0, eos_coef=1e-4, num_classes=DEFAULT_NUM_CLASSES):
         """ Create the criterion.
         Parameters:
             num_classes: number of object categories, omitting the special no-object category
