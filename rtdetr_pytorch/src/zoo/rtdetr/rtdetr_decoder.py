@@ -15,7 +15,7 @@ from .utils import deformable_attention_core_func, get_activation, inverse_sigmo
 from .utils import bias_init_with_prob
 
 
-from src.core import register
+from src.core import register, DEFAULT_NUM_CLASSES
 
 
 __all__ = ['RTDETRTransformer']
@@ -282,7 +282,7 @@ class TransformerDecoder(nn.Module):
 class RTDETRTransformer(nn.Module):
     __share__ = ['num_classes']
     def __init__(self,
-                 num_classes=80,
+                 num_classes=DEFAULT_NUM_CLASSES,
                  hidden_dim=256,
                  num_queries=300,
                  position_embed_type='sine',

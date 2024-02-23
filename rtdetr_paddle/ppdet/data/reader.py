@@ -38,10 +38,10 @@ from ppdet.utils.logger import setup_logger
 logger = setup_logger('reader')
 
 MAIN_PID = os.getpid()
-
+DEFAULT_NUM_CLASSES = 80
 
 class Compose(object):
-    def __init__(self, transforms, num_classes=80):
+    def __init__(self, transforms, num_classes=DEFAULT_NUM_CLASSES):
         self.transforms = transforms
         self.transforms_cls = []
         for t in self.transforms:
@@ -68,7 +68,7 @@ class Compose(object):
 
 
 class BatchCompose(Compose):
-    def __init__(self, transforms, num_classes=80, collate_batch=True):
+    def __init__(self, transforms, num_classes=DEFAULT_NUM_CLASSES, collate_batch=True):
         super(BatchCompose, self).__init__(transforms, num_classes)
         self.collate_batch = collate_batch
 
@@ -141,7 +141,7 @@ class BaseDataLoader(object):
                  batch_size=1,
                  shuffle=False,
                  drop_last=False,
-                 num_classes=80,
+                 num_classes=DEFAULT_NUM_CLASSES,
                  collate_batch=True,
                  use_shared_memory=False,
                  **kwargs):
@@ -231,7 +231,7 @@ class TrainReader(BaseDataLoader):
                  batch_size=1,
                  shuffle=True,
                  drop_last=True,
-                 num_classes=80,
+                 num_classes=DEFAULT_NUM_CLASSES,
                  collate_batch=True,
                  **kwargs):
         super(TrainReader, self).__init__(sample_transforms, batch_transforms,
@@ -249,7 +249,7 @@ class EvalReader(BaseDataLoader):
                  batch_size=1,
                  shuffle=False,
                  drop_last=False,
-                 num_classes=80,
+                 num_classes=DEFAULT_NUM_CLASSES,
                  **kwargs):
         super(EvalReader, self).__init__(sample_transforms, batch_transforms,
                                          batch_size, shuffle, drop_last,
@@ -266,7 +266,7 @@ class TestReader(BaseDataLoader):
                  batch_size=1,
                  shuffle=False,
                  drop_last=False,
-                 num_classes=80,
+                 num_classes=DEFAULT_NUM_CLASSES,
                  **kwargs):
         super(TestReader, self).__init__(sample_transforms, batch_transforms,
                                          batch_size, shuffle, drop_last,
