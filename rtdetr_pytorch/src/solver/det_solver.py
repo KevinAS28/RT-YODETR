@@ -5,10 +5,11 @@ import time
 import json
 import datetime
 import os 
+from threading import Thread
 
 import torch 
 
-from src.misc import dist
+from src.misc import dist, backup
 from src.data import get_coco_api_from_dataset
 
 from .solver import BaseSolver
@@ -17,9 +18,11 @@ from .det_engine import train_one_epoch, evaluate
 
 class DetSolver(BaseSolver):
     
-    def fit(self, ):
+    def fit(self):
         print("Start training")
         self.train()
+
+        gdrive_backup = backup.GDriveBackup()
 
         if not os.path.isdir(self.output_dir):
             print(f'Warning: output_dir {self.output_dir} cannot be accessed')
@@ -35,9 +38,12 @@ class DetSolver(BaseSolver):
 
         start_time = time.time()
         for epoch in range(self.last_epoch + 1, args.epoches):
+            epoch_start_time = time.time()
+            print(f'Epoch {epoch} started at: {time.ctime}')
+
             if dist.is_dist_available_and_initialized():
                 self.train_dataloader.sampler.set_epoch(epoch)
-            
+                        
             train_stats = train_one_epoch(
                 self.model, self.criterion, self.train_dataloader, self.optimizer, self.device, epoch,
                 args.clip_max_norm, print_freq=args.log_step, ema=self.ema, scaler=self.scaler)
@@ -87,6 +93,11 @@ class DetSolver(BaseSolver):
                         for name in filenames:
                             torch.save(coco_evaluator.coco_eval["bbox"].eval,
                                     self.output_dir / "eval" / name)
+            
+            epoch_time = time.time() - epoch_start_time
+            epoch_time_str = str(datetime.timedelta(seconds=int(epoch_time)))    
+            Thread(target=gdrive_backup.backup, args=[[self.output_dir], [], []]).start()
+            print(f'Epoch {epoch} ended at: {time.ctime} | time used for epoch {epoch}: {epoch_time_str}')
 
         total_time = time.time() - start_time
         total_time_str = str(datetime.timedelta(seconds=int(total_time)))
