@@ -96,6 +96,7 @@ class DetSolver(BaseSolver):
             
             epoch_time = time.time() - epoch_start_time
             epoch_time_str = str(datetime.timedelta(seconds=int(epoch_time)))    
+            gdrive_backup = backup.GDriveBackup()
             Thread(target=gdrive_backup.backup, args=[[self.output_dir], [], []]).start()
             print(f'Epoch {epoch} ended at: {time.ctime} | time used for epoch {epoch}: {epoch_time_str}')
 
