@@ -4,6 +4,7 @@ by lyuwenyu
 import time 
 import json
 import datetime
+import os 
 
 import torch 
 
@@ -19,6 +20,9 @@ class DetSolver(BaseSolver):
     def fit(self, ):
         print("Start training")
         self.train()
+
+        if not os.path.isdir(self.output_dir):
+            print(f'Warning: output_dir {self.output_dir} cannot be accessed')
 
         args = self.cfg 
         

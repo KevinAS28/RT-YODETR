@@ -142,7 +142,7 @@ class Blocks(nn.Module):
 class PResNet(nn.Module):
     def __init__(
         self, 
-        depth, 
+        depth,  
         variant='d', 
         num_stages=4, 
         return_idx=[0, 1, 2, 3], 

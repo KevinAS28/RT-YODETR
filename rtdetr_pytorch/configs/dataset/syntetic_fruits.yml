@@ -2,7 +2,7 @@
 
 task: detection
 
-num_classes: 62
+num_classes: 64 # (maybe) if starts from 1, then add 1
 remap_mscoco_category: False
 
 train_dataloader:
