@@ -6,7 +6,7 @@ import time
 
 class ManualBackup:
     def __init__(self, target_backup_dir='/content/gdrive/My Drive'):
-        self.backup_dir = os.path.join(target_backup_dir, backup_dir=f'training_output_{str(datetime.datetime.now()).replace(" ", "|").replace(":", "_")}')
+        self.backup_dir = os.path.join(target_backup_dir, f'training_output_{str(datetime.datetime.now()).replace(" ", "|").replace(":", "_")}')
         if not os.path.isdir(self.backup_dir):
             os.mkdir(self.backup_dir)
         
