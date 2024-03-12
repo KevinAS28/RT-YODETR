@@ -9,7 +9,18 @@ __include__: [
 output_dir: ./output/rtdetr_yolov8bb
 
 HybridEncoder:
-  expansion: 0.5
+  # intra
+  hidden_dim: 384
+  dim_feedforward: 2048
+
 
 RTDETRTransformer:
-  eval_idx: 2 # use 3th decoder layer to eval
+  feat_channels: [384, 384, 384]
+
+
+optimizer:
+  type: AdamW
+  params: 
+    - 
+      params: 'backbone'
+      lr: 0.000001

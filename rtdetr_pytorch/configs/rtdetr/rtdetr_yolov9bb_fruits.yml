@@ -1,0 +1,26 @@
+__include__: [
+  '../dataset/syntetic_fruits.yml',
+  '../runtime.yml',
+  './include/dataloader.yml',
+  './include/optimizer.yml',
+  './include/rtdetr_yolov9bb_vd.yml',
+]
+
+output_dir: ./output/rtdetr_yolov9bb
+
+HybridEncoder:
+  # intra
+  hidden_dim: 384
+  dim_feedforward: 2048
+
+
+RTDETRTransformer:
+  feat_channels: [384, 384, 384]
+
+
+optimizer:
+  type: AdamW
+  params: 
+    - 
+      params: 'backbone'
+      lr: 0.000001

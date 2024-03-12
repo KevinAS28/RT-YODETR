@@ -6,14 +6,14 @@ postprocessor: RTDETRPostProcessor
 
 
 RTDETR: 
-  backbone: YoloV8Backbone
+  backbone: YoloV9Backbone
   encoder: HybridEncoder
   decoder: RTDETRTransformer
   multi_scale: [480, 512, 544, 576, 608, 640, 640, 640, 672, 704, 736, 768, 800]
 
-YoloV8Backbone:
-  width: [3, 64, 128, 256, 512, 512]
-  depth: [3, 6, 6]  
+YoloV9Backbone:
+  c: [3, 64, 128, 256, 512, 1024, 2048]
+  return_idx: [2,3,4]  
 
 HybridEncoder:
   in_channels: [256, 512, 512]
