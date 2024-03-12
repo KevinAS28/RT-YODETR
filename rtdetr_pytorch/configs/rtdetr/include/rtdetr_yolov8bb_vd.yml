@@ -16,7 +16,7 @@ YoloV8Backbone:
   depth: [3, 6, 6]  
 
 HybridEncoder:
-  in_channels: [256, 512, 512]
+  in_channels: [512, 1024, 2048]
   feat_strides: [8, 16, 32]
 
   # intra
@@ -71,6 +71,9 @@ SetCriterion:
     # use_focal_loss: True 
     alpha: 0.25
     gamma: 2.0
+
+
+
 
 
 
