@@ -4,12 +4,9 @@ import datetime
 import shutil
 import time
 
-import traceback
-
 class ManualBackup:
-    def __init__(self, drive_dir='/content/gdrive', backup_dir=f'training_output_{str(datetime.datetime.now()).replace(" ", "|").replace(":", "_")}'):
-        self.mydrive_dir = os.path.join(drive_dir, 'My Drive')
-        self.backup_dir = os.path.join(self.mydrive_dir, backup_dir)
+    def __init__(self, target_backup_dir='/content/gdrive/My Drive'):
+        self.backup_dir = os.path.join(target_backup_dir, backup_dir=f'training_output_{str(datetime.datetime.now()).replace(" ", "|").replace(":", "_")}')
         if not os.path.isdir(self.backup_dir):
             os.mkdir(self.backup_dir)
         
@@ -27,7 +24,7 @@ class ManualBackup:
 
     def backup(self, dirs_backup=[], files_backup=[], other_objects=[]):
         """
-        Backups directories, files, and other objects to Google Drive.
+        Backups directories, files, and other objects to target backup dir.
 
         Args:
             dirs_backup (list): A list of directory paths to backup.
