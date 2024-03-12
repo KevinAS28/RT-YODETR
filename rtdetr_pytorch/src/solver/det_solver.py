@@ -40,7 +40,7 @@ class DetSolver(BaseSolver):
         start_time = time.time()
         for epoch in range(self.last_epoch + 1, args.epoches):
             epoch_start_time = time.time()
-            print(f'Epoch {epoch} started at: {time.ctime}')
+            print(f'Epoch {epoch} started at: {time.ctime()}')
 
             if dist.is_dist_available_and_initialized():
                 self.train_dataloader.sampler.set_epoch(epoch)
