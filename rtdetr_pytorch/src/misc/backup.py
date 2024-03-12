@@ -2,23 +2,12 @@ import pickle
 import os
 import datetime
 import shutil
+import time
 
 import traceback
 
-
-try:
-    from google.colab import drive
-except ImportError as e:
-    print('Error import: from google.colab import drive. Cannot import google drive module, are you sure you running this script in Google Colab?')
-    traceback.print_exc()
-
-class GDriveBackup:
+class ManualBackup:
     def __init__(self, drive_dir='/content/gdrive', backup_dir=f'training_output_{str(datetime.datetime.now()).replace(" ", "|").replace(":", "_")}'):
-        if not ('drive' in globals()):
-            traceback.print_exc()
-            raise RuntimeError('Seems like google drive module not loaded correctly')
-
-        drive.mount(drive_dir)
         self.mydrive_dir = os.path.join(drive_dir, 'My Drive')
         self.backup_dir = os.path.join(self.mydrive_dir, backup_dir)
         if not os.path.isdir(self.backup_dir):
@@ -45,7 +34,7 @@ class GDriveBackup:
             files_backup (list): A list of file paths to backup.
             other_objects (list): A list of other objects (serializable with pickle) to backup.
         """
-
+        print(f'({time.ctime()}) Backup of {dirs_backup}, {files_backup}, {other_objects}')
         # Backup directories
         for dir_path in dirs_backup:
             if not os.path.isdir(dir_path):

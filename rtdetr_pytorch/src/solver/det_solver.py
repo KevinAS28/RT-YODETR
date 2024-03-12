@@ -17,12 +17,13 @@ from .det_engine import train_one_epoch, evaluate
 
 
 class DetSolver(BaseSolver):
-    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.backup_driver = backup.ManualBackup()
+
     def fit(self):
         print("Start training")
         self.train()
-
-        gdrive_backup = backup.GDriveBackup()
 
         if not os.path.isdir(self.output_dir):
             print(f'Warning: output_dir {self.output_dir} cannot be accessed')
@@ -96,8 +97,7 @@ class DetSolver(BaseSolver):
             
             epoch_time = time.time() - epoch_start_time
             epoch_time_str = str(datetime.timedelta(seconds=int(epoch_time)))    
-            gdrive_backup = backup.GDriveBackup()
-            Thread(target=gdrive_backup.backup, args=[[self.output_dir], [], []]).start()
+            Thread(target=self.backup_driver.backup, args=[[self.output_dir], [], []]).start()
             print(f'Epoch {epoch} ended at: {time.ctime} | time used for epoch {epoch}: {epoch_time_str}')
 
         total_time = time.time() - start_time
@@ -116,5 +116,5 @@ class DetSolver(BaseSolver):
                 
         if self.output_dir:
             dist.save_on_master(coco_evaluator.coco_eval["bbox"].eval, self.output_dir / "eval.pth")
-        
+        Thread(target=self.backup_driver.backup, args=[[self.output_dir], [], []]).start()        
         return
