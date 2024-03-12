@@ -34,6 +34,7 @@ class ManualBackup:
         print(f'({time.ctime()}) Backup of {dirs_backup}, {files_backup}, {other_objects}')
         # Backup directories
         for dir_path in dirs_backup:
+            dir_path = str(dir_path)
             if not os.path.isdir(dir_path):
                 print(f"Skipping directory '{dir_path}': does not exist")
                 continue
@@ -54,6 +55,7 @@ class ManualBackup:
 
         # Backup files
         for file_path in files_backup:
+            file_path = str(file_path)
             if not os.path.isfile(file_path):
                 print(f"Skipping file '{file_path}': does not exist")
                 continue
