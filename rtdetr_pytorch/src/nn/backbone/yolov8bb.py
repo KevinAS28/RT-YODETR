@@ -1,4 +1,4 @@
-from commons_pt import *
+from .commons_pt import *
 
 from src.core import register
 
