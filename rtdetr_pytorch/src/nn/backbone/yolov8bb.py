@@ -6,7 +6,7 @@ __all__ = ['YoloV8Backbone']
 
 @register
 class YoloV8Backbone(nn.Module):
-    def __init__(self, channels=[3, 64, 256, 512, 1024, 2048], depths=[3,6,6], phi=-1, pretrained=False):
+    def __init__(self, channels=[3, 16, 32, 64, 128, 256], depths=[1,2,2], phi=-1, pretrained=False):
         super().__init__()
         #------------------------------------------------#
         #The input image is 3, 640, 640
