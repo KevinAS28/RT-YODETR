@@ -58,5 +58,15 @@ class YoloV9Backbone(nn.Module):
         )                
         print('pyramids length:', len(self.pyramids))
 
+    def forward(self, x):
+        results = []
+        for i in range(self.return_idx[-1]+1):
+            print('forward', i)
+            pyr = self.pyramids[i]
+            x = pyr(x)
+            if i in self.return_idx:
+                results.append(x)
+        return results
+    
 if __name__=='__main__':
     print(YoloV9Backbone())
