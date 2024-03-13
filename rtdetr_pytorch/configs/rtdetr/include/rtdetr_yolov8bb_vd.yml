@@ -12,7 +12,7 @@ RTDETR:
   multi_scale: [480, 512, 544, 576, 608, 640, 640, 640, 672, 704, 736, 768, 800]
 
 YoloV8Backbone:
-  width: [3, 64, 256, 512, 512, 1024] # number params alike resnet50
+  channels: [3, 64, 256, 512, 512, 1024] # number params alike resnet50
   depth: [1,2,2]
 
 HybridEncoder:
