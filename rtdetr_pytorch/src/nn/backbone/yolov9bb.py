@@ -61,7 +61,6 @@ class YoloV9Backbone(nn.Module):
     def forward(self, x):
         results = []
         for i in range(self.return_idx[-1]+1):
-            print('forward', i)
             pyr = self.pyramids[i]
             x = pyr(x)
             if i in self.return_idx:
