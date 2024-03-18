@@ -163,4 +163,3 @@ class YoloV5Backbone(torch.nn.Module):
         return self.darkfpn(self.darknet(x))
 
 
-print(YoloV5Backbone())
