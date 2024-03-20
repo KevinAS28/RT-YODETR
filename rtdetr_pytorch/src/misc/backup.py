@@ -85,6 +85,7 @@ class ManualBackup:
             date_backupdir = [date_backupdir[key] for key in sorted(date_backupdir)]
             if len(date_backupdir)>max_backup_count:
                 to_delete_backupdirs = date_backupdir[:len(date_backupdir)-max_backup_count]
+                print('Old backups will be removed:', to_delete_backupdirs)
                 for td_backupdir in to_delete_backupdirs:
                     to_delete = os.path.join(self.target_backup_dir, td_backupdir)
                     shutil.rmtree(to_delete)
