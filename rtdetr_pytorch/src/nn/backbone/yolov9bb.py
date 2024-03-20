@@ -44,18 +44,18 @@ class YoloV9Backbone(nn.Module):
                 RepNCSPELAN4(128, 256, 128, 64)
             ),
             nn.Sequential(
-                Conv(256, 512, 3, 2),
-                RepNCSPELAN4(512, 1024, 512, 128, 1)
+                Conv(256, 256, 3, 2),
+                RepNCSPELAN4(256, 512, 256, 128, 1)
             ),            
             nn.Sequential(
-                Conv(1024, 1024, 3, 2),
-                RepNCSPELAN4(1024, 1024, 1024, 512, 1)
+                Conv(512, 1024, 3, 2),
+                RepNCSPELAN4(1024, 1024, 1024, 256, 1)
             ),            
-            nn.Sequential(
+            nn.Sequential(  
                 Conv(1024, 1024, 3, 2),
-                RepNCSPELAN4(1024, 1024, 1024, 512, 1)
+                RepNCSPELAN4(1024, 1024, 1024, 256, 1)
             ),                        
-        )                
+        )                      
         print('Pyramids length:', len(self.pyramids))
     
     def forward(self, x):
