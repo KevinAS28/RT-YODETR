@@ -89,7 +89,7 @@ class ManualBackup:
                     to_delete = os.path.join(self.target_backup_dir, td_backupdir)
                     shutil.rmtree(to_delete)
 
-        dir_path = [str(dir_path)[:-1] if dir_path.endswith(os.path.sep) else str(dir_path) for dir_path in dirs_backup]
+        dir_path = [str(dir_path)[:-1] if str(dir_path).endswith(os.path.sep) else str(dir_path) for dir_path in dirs_backup]
 
         print(f'({time.ctime()}) Backup of {dirs_backup}, {files_backup}, {[str(i) for i in other_objects]}')
 
