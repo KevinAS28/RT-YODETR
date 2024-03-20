@@ -138,17 +138,17 @@ class ManualBackup:
                 failed_backups['objects'].append(obj_name)
             else:
                 backup_mapping['objects'][obj_key] = backup_file
+        
+        backup_info = {
+            'datetime': str(dt.datetime.now()),
+            'timestamp': time.time(),
+            'backup_mapping': backup_mapping,
+            'failed_backups': failed_backups,
+        }
 
         with open(os.path.join(self.backup_dir_path, self.info_name), 'w+') as bu_file:
             bu_file.write(
-                json.dumps(
-                    {
-                        'datetime': str(dt.datetime.now()),
-                        'timestamp': time.time(),
-                        'backup_mapping': backup_mapping,
-                        'failed_backups': failed_backups,
-                    }
-                )
+                json.dumps(backup_info)
         )
 
         print(f"Backup completed to: {self.backup_dir_path}")
