@@ -97,7 +97,7 @@ class DetSolver(BaseSolver):
             
             epoch_time = time.time() - epoch_start_time
             epoch_time_str = str(datetime.timedelta(seconds=int(epoch_time)))    
-            Thread(target=self.backup_driver.backup, args=[[self.output_dir], [], []]).start()
+            Thread(target=self.backup_driver.backup, args=[[self.output_dir], [], dict()]).start()
             print(f'Epoch {epoch} ended at: {time.ctime()} | time used for epoch {epoch}: {epoch_time_str}')
 
         total_time = time.time() - start_time
