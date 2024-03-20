@@ -114,11 +114,9 @@ def warp_loader(loader, shuffle=False):
     return loader
 
 
-
 def is_parallel(model) -> bool:
     # Returns True if model is of type DP or DDP
     return type(model) in (torch.nn.parallel.DataParallel, torch.nn.parallel.DistributedDataParallel)
-
 
 def de_parallel(model) -> nn.Module:
     # De-parallelize a model: returns single-GPU model if model is of type DP or DDP
@@ -178,13 +176,9 @@ def sync_time():
 
     return time.time()
 
-
-
 def set_seed(seed):
     # fix the seed for reproducibility
     seed = seed + get_rank()
     torch.manual_seed(seed)
     np.random.seed(seed)
     random.seed(seed)
-
-

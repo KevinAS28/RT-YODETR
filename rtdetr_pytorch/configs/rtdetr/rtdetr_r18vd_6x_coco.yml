@@ -7,7 +7,6 @@ __include__: [
   './include/rtdetr_r50vd.yml',
 ]
 
-
 output_dir: ./output/rtdetr_r18vd_6x_coco
 
 PResNet:
