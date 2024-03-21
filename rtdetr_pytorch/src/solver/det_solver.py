@@ -96,9 +96,14 @@ class DetSolver(BaseSolver):
                             torch.save(coco_evaluator.coco_eval["bbox"].eval,
                                     self.output_dir / "eval" / name)
             
+            files_to_backups = []
+            files_to_backups.extend(checkpoint_paths)
+            files_to_backups.append(self.output_dir / "log.txt")
+            
+
             epoch_time = time.time() - epoch_start_time
             epoch_time_str = str(datetime.timedelta(seconds=int(epoch_time)))    
-            self.backup_driver.backup(dirs_backup=[], files_backup=checkpoint_paths)
+            self.backup_driver.backup(dirs_backup=[self.output_dir / 'eval'], files_backup=files_to_backups)
             print(f'Epoch {epoch} ended at: {time.ctime()} | time used for epoch {epoch}: {epoch_time_str}')
 
         total_time = time.time() - start_time
