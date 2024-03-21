@@ -23,16 +23,18 @@ class DetSolver(BaseSolver):
         
 
     def fit(self):
-        print(self.model.backbone)
         print("Start training")
         if os.path.isdir(self.cfg.output_dir) and (not self.cfg.resume):
             print(f'Dir output {self.cfg.output_dir} is exists and the mode is training (not resuming the training). To prevent overriding, training has been cancelled')
             exit(1)
         
         self.train()
-
+        
         if not os.path.isdir(self.output_dir):
-            print(f'Warning: output_dir {self.output_dir} cannot be accessed')
+            print(f'Error: output_dir {self.output_dir} cannot be accessed')
+            exit(1)
+
+        print(self.model.backbone)
 
         args = self.cfg 
         
