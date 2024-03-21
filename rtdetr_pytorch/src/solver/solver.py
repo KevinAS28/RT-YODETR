@@ -52,7 +52,7 @@ class BaseSolver(object):
             print('Looking for previous training backups...')
             sorted_backups = self.cfg.backup_driver.get_backups_sorted()
             if len(sorted_backups)>0:
-                print('Restoring last backup: ', sorted_backups[-1])
+                print('Restoring last 2 backups: ', sorted_backups[-2:])
                 self.cfg.backup_driver.restore()
             else:
                 print('No previous backups found')

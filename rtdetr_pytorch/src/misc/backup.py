@@ -10,6 +10,7 @@ class ManualBackup:
         self.target_backup_dir = target_backup_dir
         self.backup_title = backup_title
         self.info_name = 'backup_info.json'
+        self.backup_index = 0
 
         self.backup_names = {
             'dirs': 'directories_backups',
@@ -31,10 +32,11 @@ class ManualBackup:
             self.initiate_backup_dir(target_backup_dir, backup_title)
         
     def initiate_backup_dir(self, target_backup_dir, backup_title):
-        self.backup_dir_path = os.path.join(target_backup_dir, f'{backup_title}|{str(dt.datetime.now()).replace(" ", "-").replace(":", "_")}')
+        self.backup_dir_path = os.path.join(target_backup_dir, f'{backup_title}_{self.backup_index}|{str(dt.datetime.now()).replace(" ", "-").replace(":", "_")}')
         if not os.path.isdir(self.backup_dir_path):
-          os.makedirs(self.backup_dir_path)  
-
+            os.makedirs(self.backup_dir_path)  
+            self.backup_index += 1
+        
         for _,value in self.backup_names.items():
             dst_backup_dir = os.path.join(self.backup_dir_path, value)
             if not os.path.isdir(dst_backup_dir):
