@@ -9,6 +9,7 @@ class ManualBackup:
     def __init__(self, target_backup_dir='/content/gdrive/My Drive/manual_backup', backup_title='backup_training_output', initiate_backup_dir=False):
         self.target_backup_dir = target_backup_dir
         self.backup_title = backup_title
+        self.info_name = 'backup_info.json'
 
         self.backup_names = {
             'dirs': 'directories_backups',
@@ -24,13 +25,11 @@ class ManualBackup:
             tbp.write('.')
         os.remove(test_file)
 
-        print('Manual Backup Driver Initiated')
+        print(f'Manual Backup Driver Initiated: {str(self)}')
 
         if initiate_backup_dir:
             self.initiate_backup_dir(target_backup_dir, backup_title)
         
-        self.info_name = 'backup_info.json'
-    
     def initiate_backup_dir(self, target_backup_dir, backup_title):
         self.backup_dir_path = os.path.join(target_backup_dir, f'{backup_title}|{str(dt.datetime.now()).replace(" ", "-").replace(":", "_")}')
         if not os.path.isdir(self.backup_dir_path):
@@ -206,3 +205,6 @@ class ManualBackup:
         #         restored['objects'][obj_key] = unpickler.load()
         
         return restored
+
+    def __str__(self):
+        return f'ManualBackup(target_backup_dir="{self.target_backup_dir}", backup_title="{self.backup_title}")'
