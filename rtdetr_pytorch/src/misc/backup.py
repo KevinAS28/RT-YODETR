@@ -177,6 +177,10 @@ class ManualBackup:
         if dst is None:
           dst = os.getcwd()
 
+        if not os.path.isfile(os.path.join(src, self.info_name)):
+            print(f'Backup of {src} is broken, {self.info_name} not found')
+            return False
+        
         info = None
         with open(os.path.join(src, self.info_name), 'r') as info_file:
             info = json.loads(info_file.read())
