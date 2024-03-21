@@ -18,6 +18,8 @@ class ManualBackup:
 
         # check if the target is accessible
         test_file = os.path.join(target_backup_dir, 'text.txt')
+        if not os.path.isdir(target_backup_dir):
+            os.makedirs(target_backup_dir)
         with open(test_file, 'w+') as tbp:
             tbp.write('.')
         os.remove(test_file)
