@@ -24,6 +24,9 @@ class DetSolver(BaseSolver):
 
     def fit(self):
         print("Start training")
+        if os.path.isdir(self.cfg.output_dir) and (not self.cfg.resume):
+            print(f'Dir output {self.cfg.output_dir} is exists and the mode is training (not resuming the training). To prevent overriding, training has been cancelled')
+        
         self.train()
 
         if not os.path.isdir(self.output_dir):
