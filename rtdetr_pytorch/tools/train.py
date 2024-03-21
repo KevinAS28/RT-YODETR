@@ -17,7 +17,7 @@ def main(args, ) -> None:
     dist.init_distributed()
 
     assert not all([args.tuning, args.resume]), \
-        'Only support from_scrach or resume or tuning at one time'
+        'Only support from_scratch or resume or tuning at one time'
 
     cfg = YAMLConfig(
         args.config,
@@ -35,7 +35,6 @@ def main(args, ) -> None:
 
 
 if __name__ == '__main__':
-
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', '-c', type=str, )
     parser.add_argument('--resume', '-r', type=str, )

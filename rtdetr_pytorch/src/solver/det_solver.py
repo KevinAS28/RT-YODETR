@@ -9,7 +9,7 @@ from threading import Thread
 
 import torch 
 
-from src.misc import dist, backup
+from src.misc import dist
 from src.data import get_coco_api_from_dataset
 
 from .solver import BaseSolver
@@ -19,7 +19,8 @@ from .det_engine import train_one_epoch, evaluate
 class DetSolver(BaseSolver):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.backup_driver = backup.ManualBackup()
+        self.backup_driver = self.cfg.backup_driver
+        
 
     def fit(self):
         print("Start training")
@@ -51,8 +52,8 @@ class DetSolver(BaseSolver):
 
             self.lr_scheduler.step()
             
-            if self.output_dir:
-                checkpoint_paths = [self.output_dir / 'checkpoint.pth']
+            checkpoint_paths = [self.output_dir / 'checkpoint.pth']
+            if self.output_dir:    
                 # extra checkpoint before LR drop and every 100 epochs
                 if (epoch + 1) % args.checkpoint_step == 0:
                     checkpoint_paths.append(self.output_dir / f'checkpoint{epoch:04}.pth')
@@ -97,7 +98,7 @@ class DetSolver(BaseSolver):
             
             epoch_time = time.time() - epoch_start_time
             epoch_time_str = str(datetime.timedelta(seconds=int(epoch_time)))    
-            self.backup_driver.backup(dirs_backup=[self.output_dir])
+            self.backup_driver.backup(dirs_backup=[], files_backup=checkpoint_paths)
             print(f'Epoch {epoch} ended at: {time.ctime()} | time used for epoch {epoch}: {epoch_time_str}')
 
         total_time = time.time() - start_time

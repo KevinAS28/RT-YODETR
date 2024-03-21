@@ -9,7 +9,7 @@ import copy
 
 from .config import BaseConfig
 from .yaml_utils import load_config, merge_config, create, merge_dict
-
+from src.misc import backup
 
 class YAMLConfig(BaseConfig):
     def __init__(self, cfg_path: str, **kwargs) -> None:
@@ -18,9 +18,9 @@ class YAMLConfig(BaseConfig):
         cfg = load_config(cfg_path)
         merge_dict(cfg, kwargs)
 
-        # pprint(cfg)
+        # print(cfg)
 
-        self.yaml_cfg = cfg 
+        self.yaml_cfg = cfg
 
         self.log_step = cfg.get('log_step', 100)
         self.checkpoint_step = cfg.get('checkpoint_step', 1)
@@ -35,7 +35,6 @@ class YAMLConfig(BaseConfig):
         self.autocast = cfg.get('autocast', dict())
         self.find_unused_parameters = cfg.get('find_unused_parameters', None)
         self.clip_max_norm = cfg.get('clip_max_norm', 0.)
-
 
     @property
     def model(self, ) -> torch.nn.Module:
@@ -113,6 +112,11 @@ class YAMLConfig(BaseConfig):
 
         return self._scaler
 
+    @property
+    def backup_driver(self, ):
+        if self._backup_driver is None:
+            self._backup_driver = backup.ManualBackup()
+        return self._backup_driver
  
     @staticmethod
     def get_optim_params(cfg: dict, model: nn.Module):

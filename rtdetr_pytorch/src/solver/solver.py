@@ -48,6 +48,14 @@ class BaseSolver(object):
 
         # NOTE instantiating order
         if self.cfg.resume:
+            print('Looking for previous training backups...')
+            sorted_backups = self.cfg.backup_driver.get_backups_sorted()
+            if len(sorted_backups)>0:
+                print('Using last backup: ', sorted_backups[-1])
+                self.cfg.backup_driver.restore()
+            else:
+                print('No previous backups found')
+
             print(f'Resume checkpoint from {self.cfg.resume}')
             self.resume(self.cfg.resume)
 

@@ -16,6 +16,14 @@ class ManualBackup:
             'objs': 'objs_backups'
         }
 
+        # check if the target is accessible
+        test_file = os.path.join(target_backup_dir, 'text.txt')
+        with open(test_file, 'w+') as tbp:
+            tbp.write('.')
+        os.remove(test_file)
+
+        print('Manual Backup Driver Initiated')
+
         if initiate_backup_dir:
             self.initiate_backup_dir(target_backup_dir, backup_title)
         
@@ -73,16 +81,21 @@ class ManualBackup:
         self.copy_dir(src, backup_dir)
         return backup_dir
     
+
+    def get_backups_sorted(self):
+        date_backupdir = {
+            dt.datetime.strptime(backup_dir.split('|')[-1], '%Y-%m-%d-%H_%M_%S.%f'): 
+                backup_dir 
+            for backup_dir in os.listdir(self.target_backup_dir)}
+        date_backupdir = [date_backupdir[key] for key in sorted(date_backupdir)]
+        return date_backupdir
+    
     def backup(self, dirs_backup:list=[], files_backup:list=[], other_objects:dict=dict(), max_backup_count=3, initiate_backup_dir=True):
         if initiate_backup_dir:
             self.initiate_backup_dir(self.target_backup_dir, self.backup_title)
 
         if max_backup_count>0:
-            date_backupdir = {
-                dt.datetime.strptime(backup_dir.split('|')[-1], '%Y-%m-%d-%H_%M_%S.%f'): 
-                    backup_dir 
-                for backup_dir in os.listdir(self.target_backup_dir)}
-            date_backupdir = [date_backupdir[key] for key in sorted(date_backupdir)]
+            date_backupdir = self.get_backups_sorted()
             if len(date_backupdir)>max_backup_count:
                 to_delete_backupdirs = date_backupdir[:len(date_backupdir)-max_backup_count]
                 print('Old backups will be removed:', to_delete_backupdirs)
@@ -155,11 +168,7 @@ class ManualBackup:
 
     def restore(self, src=None, dst=None):
         if src is None:
-            date_backupdir = {
-                dt.datetime.strptime(backup_dir.split('|')[-1], '%Y-%m-%d-%H_%M_%S.%f'): 
-                    backup_dir 
-                for backup_dir in os.listdir(self.target_backup_dir)}
-            date_backupdir = [date_backupdir[key] for key in sorted(date_backupdir)]
+            date_backupdir = self.get_backups_sorted()
             src = os.path.join(self.target_backup_dir, date_backupdir[-1])
 
         if dst is None:
