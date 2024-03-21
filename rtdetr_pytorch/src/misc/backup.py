@@ -169,10 +169,10 @@ class ManualBackup:
 
         print(f"Backup completed to: {self.backup_dir_path}")
 
-    def restore(self, src=None, dst=None):
+    def restore(self, src=None, dst=None, last_n=-1):
         if src is None:
             date_backupdir = self.get_backups_sorted()
-            src = os.path.join(self.target_backup_dir, date_backupdir[-1])
+            src = os.path.join(self.target_backup_dir, date_backupdir[last_n])
 
         if dst is None:
           dst = os.getcwd()
