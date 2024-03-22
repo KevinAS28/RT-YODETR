@@ -125,10 +125,11 @@ class ManualBackup:
 
         # Backup directories
         for dir_path in dirs_backup:
-            backup_dir_result = self.backup_dir(dir_path)
-            if not backup_dir_result:
+            backup_dir_result = self.backup_dir(dir_path)``
+            if (not backup_dir_result) and (os.path.isdir(backup_dir_result)):
                 failed_backups['dirs'].append(str(dir_path))
             else:
+                print(f'Backup dir failed: {dir_path}')
                 backup_mapping['dirs'][str(dir_path)] = str(backup_dir_result)
 
         # Backup files
@@ -138,6 +139,7 @@ class ManualBackup:
             if not backup_file_result:
                 failed_backups['files'].append(str(file_path))
             else:
+                print(f'Backup file failed: {file_path}')
                 backup_mapping['files'][str(file_path)] = str(backup_file_result)
 
         # Backup other objects using pickle
@@ -153,6 +155,7 @@ class ManualBackup:
             if not os.path.isfile(backup_file):
                 failed_backups['objects'].append(obj_name)
             else:
+                print(f'Backup object failed: {obj_name}')
                 backup_mapping['objects'][obj_key] = backup_file
         
         backup_info = {
