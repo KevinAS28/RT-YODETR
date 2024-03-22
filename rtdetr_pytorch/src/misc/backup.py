@@ -127,9 +127,9 @@ class ManualBackup:
         for dir_path in dirs_backup:
             backup_dir_result = self.backup_dir(dir_path)
             if (not backup_dir_result) and (not os.path.isdir(backup_dir_result)):
+                print(f'Backup dir failed: {dir_path}')
                 failed_backups['dirs'].append(str(dir_path))
             else:
-                print(f'Backup dir failed: {dir_path}')
                 backup_mapping['dirs'][str(dir_path)] = str(backup_dir_result)
 
         # Backup files
@@ -137,9 +137,9 @@ class ManualBackup:
             file_path = str(file_path)
             backup_file_result = self.backup_file(file_path)
             if (not backup_file_result) and (not os.path.isfile(backup_file_result)):
+                print(f'Backup file failed: {file_path}')
                 failed_backups['files'].append(str(file_path))
             else:
-                print(f'Backup file failed: {file_path}')
                 backup_mapping['files'][str(file_path)] = str(backup_file_result)
 
         # Backup other objects using pickle
