@@ -125,7 +125,7 @@ class ManualBackup:
 
         # Backup directories
         for dir_path in dirs_backup:
-            backup_dir_result = self.backup_dir(dir_path)``
+            backup_dir_result = self.backup_dir(dir_path)
             if (not backup_dir_result) and (os.path.isdir(backup_dir_result)):
                 failed_backups['dirs'].append(str(dir_path))
             else:
