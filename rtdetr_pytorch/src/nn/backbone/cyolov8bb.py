@@ -2,38 +2,38 @@ from .commons_pt import *
 
 from src.core import register
 
-__all__ = ['YoloV8Backbone']
+__all__ = ['CYoloV8Backbone']
 
 @register
-class YoloV8Backbone(nn.Module):
-    def __init__(self, base_channels=64, base_depth=3, deep_mul=0.5, phi='l', pretrained=True):
+class CYoloV8Backbone(nn.Module):
+    def __init__(self, channels=[3, 16, 32, 64, 128, 256], depths=[1,2,2], phi=-1, pretrained=False):
         super().__init__()
+        #------------------------------------------------#
+        #The input image is 3, 640, 640
+        #------------------------------------------------#
         # 3, 640, 640 => 32, 640, 640 => 64, 320, 320
-        self.stem = Conv(3, base_channels, 3, 2)
+        self.stem = Conv(channels[0], channels[1], 3, 2)
         
         # 64, 320, 320 => 128, 160, 160 => 128, 160, 160
         self.dark2 = nn.Sequential(
-            Conv(base_channels, base_channels * 2, 3, 2),
-            C2f(base_channels * 2, base_channels * 2, base_depth, True),
+            Conv(channels[1], channels[2], 3, 2),
+            C2f(channels[2], channels[2] , depths[0], True),
         )
-
         # 128, 160, 160 => 256, 80, 80 => 256, 80, 80
         self.dark3 = nn.Sequential(
-            Conv(base_channels * 2, base_channels * 4, 3, 2),
-            C2f(base_channels * 4, base_channels * 4, base_depth * 2, True),
+            Conv(channels[2], channels[3], 3, 2),
+            C2f(channels[3], channels[3], depths[1], True),
         )
-
         # 256, 80, 80 => 512, 40, 40 => 512, 40, 40
         self.dark4 = nn.Sequential(
-            Conv(base_channels * 4, base_channels * 8, 3, 2),
-            C2f(base_channels * 8, base_channels * 8, base_depth * 2, True),
+            Conv(channels[3] , channels[4], 3, 2),
+            C2f(channels[4], channels[4], depths[2], True),
         )
-
         # 512, 40, 40 => 1024 * deep_mul, 20, 20 => 1024 * deep_mul, 20, 20
         self.dark5 = nn.Sequential(
-            Conv(base_channels * 8, int(base_channels * 16 * deep_mul), 3, 2),
-            C2f(int(base_channels * 16 * deep_mul), int(base_channels * 16 * deep_mul), base_depth, True),
-            SPPF(int(base_channels * 16 * deep_mul), int(base_channels * 16 * deep_mul), k=5)
+            Conv(channels[4], channels[5], 3, 2),
+            C2f(channels[5], channels[5], depths[0], True),
+            SPPF(channels[5], channels[5], k=5)
         )
         
         if pretrained:
@@ -67,3 +67,6 @@ class YoloV8Backbone(nn.Module):
         x = self.dark5(x)
         feat3 = x
         return feat1, feat2, feat3
+
+if __name__=='__main__':
+    print(CYoloV8Backbone())
