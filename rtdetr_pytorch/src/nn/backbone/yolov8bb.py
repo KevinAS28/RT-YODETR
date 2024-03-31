@@ -6,8 +6,9 @@ __all__ = ['YoloV8Backbone']
 
 @register
 class YoloV8Backbone(nn.Module):
-    def __init__(self, base_channels=64, base_depth=3, deep_mul=0.5, phi='l', pretrained=True):
+    def __init__(self, base_channels=64, base_depth=3, deep_mul=0.5, phi='l', pretrained=True, freeze=True):
         super().__init__()
+
         # 3, 640, 640 => 32, 640, 640 => 64, 320, 320
         self.stem = Conv(3, base_channels, 3, 2)
         
@@ -46,8 +47,12 @@ class YoloV8Backbone(nn.Module):
             }[phi]
             checkpoint = torch.hub.load_state_dict_from_url(url=url, map_location="cpu", model_dir="./model_data")
             self.load_state_dict(checkpoint, strict=False)
-            print("Load weights from " + url.split('/')[-1])
 
+            print("Load weights from " + url.split('/')[-1])
+        
+        if freeze:
+            self.requires_grad_(False)
+            
     def forward(self, x):
         x = self.stem(x)
         x = self.dark2(x)

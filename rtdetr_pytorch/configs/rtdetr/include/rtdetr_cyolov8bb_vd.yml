@@ -17,6 +17,7 @@ YoloV8Backbone:
   deep_mul: 0.5
   phi: l
   pretrained: True
+  freeze: True
 
 HybridEncoder:
   in_channels: [256, 512, 1024]
