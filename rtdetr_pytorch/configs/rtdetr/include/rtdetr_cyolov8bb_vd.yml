@@ -16,7 +16,7 @@ CYoloV8Backbone:
   depth: [1,2,2]
 
 HybridEncoder:
-  in_channels: [512, 512, 1024]
+  in_channels: [512, 512, 512]
   feat_strides: [8, 16, 32]
 
   # intra
