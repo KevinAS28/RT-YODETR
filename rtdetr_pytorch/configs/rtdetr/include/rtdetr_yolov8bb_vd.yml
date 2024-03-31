@@ -6,17 +6,21 @@ postprocessor: RTDETRPostProcessor
 
 
 RTDETR: 
-  backbone: YoloV8Backbone
+  backbone: CYoloV8Backbone
   encoder: HybridEncoder
   decoder: RTDETRTransformer
   multi_scale: [480, 512, 544, 576, 608, 640, 640, 640, 672, 704, 736, 768, 800]
 
 YoloV8Backbone:
-  channels: [3, 64, 256, 512, 512, 1024] # number params alike resnet50
-  depth: [1,2,2]
+  base_channels: 64
+  base_depth: 3
+  deep_mul: 0.5
+  phi: l
+  pretrained: True
+  freeze: True
 
 HybridEncoder:
-  in_channels: [512, 512, 1024]
+  in_channels: [256, 512, 1024]
   feat_strides: [8, 16, 32]
 
   # intra
