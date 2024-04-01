@@ -27,6 +27,7 @@ class YoloV9Backbone(nn.Module):
         )            
         if weight_path:
             self.pyramids.load_state_dict(torch.load(weight_path))
+            self.pyramids.requires_grad_(False)
             print(f'weight backbone loaded from {weight_path}')
         print('pyramids length:', len(self.pyramids))
 
