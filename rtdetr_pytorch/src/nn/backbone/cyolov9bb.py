@@ -1,10 +1,10 @@
 from .commons_pt import *
 from src.core import register
 
-__all__ = ['YoloV9Backbone']
+__all__ = ['CYoloV9Backbone']
 
 @register
-class YoloV9Backbone(nn.Module):
+class CYoloV9Backbone(nn.Module):
     def __init__(self, return_idx=[2,3,4]):
         super().__init__()
         self.return_idx = return_idx
@@ -43,4 +43,4 @@ class YoloV9Backbone(nn.Module):
         return results
     
 if __name__=='__main__':
-    print(YoloV9Backbone())
+    print(CYoloV9Backbone())
