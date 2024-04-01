@@ -5,59 +5,31 @@ __all__ = ['YoloV9Backbone']
 
 @register
 class YoloV9Backbone(nn.Module):
-    def __init__(self, return_idx=[2,3,4]):
+    def __init__(self, return_idx=[2,3,4], weight_path=False):
         super().__init__()
         self.return_idx = return_idx
 
-        #real yolov9 params
-        # self.pyramids = nn.Sequential(
-        #     nn.Sequential(
-        #         Silence(),
-        #         Conv(3, 64, 3, 2),
-        #     ),
-        #     nn.Sequential(
-        #         Conv(64, 128, 3, 2),
-        #         RepNCSPELAN4(128, 256, 128, 64)
-        #     ),
-        #     nn.Sequential(
-        #         Conv(256, 256, 3, 2),
-        #         RepNCSPELAN4(256, 512, 256, 128, 1)
-        #     ),            
-        #     nn.Sequential(
-        #         Conv(512, 512, 3, 2),
-        #         RepNCSPELAN4(512, 512, 512, 256, 1)
-        #     ),            
-        #     nn.Sequential(
-        #         Conv(512, 512, 3, 2),
-        #         RepNCSPELAN4(512, 512, 512, 256, 1)
-        #     ),                        
-        # )        
-
-        # number of params alike resnet50
         self.pyramids = nn.Sequential(
-            nn.Sequential(
-                Silence(),
-                Conv(3, 64, 3, 2),
-            ),
-            nn.Sequential(
-                Conv(64, 128, 3, 2),
-                RepNCSPELAN4(128, 256, 128, 64)
-            ),
-            nn.Sequential(
-                Conv(256, 256, 3, 2),
-                RepNCSPELAN4(256, 512, 256, 128, 1)
-            ),            
-            nn.Sequential(
-                Conv(512, 1024, 3, 2),
-                RepNCSPELAN4(1024, 1024, 1024, 256, 1)
-            ),            
-            nn.Sequential(  
-                Conv(1024, 1024, 3, 2),
-                RepNCSPELAN4(1024, 1024, 1024, 256, 1)
-            ),                        
-        )                      
-        print('Pyramids length:', len(self.pyramids))
-    
+            Silence(),
+            Conv(3, 64, 3, 2),
+        
+            Conv(64, 128, 3, 2),
+            RepNCSPELAN4(128, 256, 128, 64),
+        
+            ADown(256, 256),
+            RepNCSPELAN4(256, 512, 256, 128, 1),
+        
+            ADown(512, 512),
+            RepNCSPELAN4(512, 512, 512, 256, 1),
+        
+            ADown(512, 512),
+            RepNCSPELAN4(512, 512, 512, 256, 1),
+        )            
+        if weight_path:
+            self.pyramids.load_state_dict(torch.load(weight_path))
+            print(f'weight backbone loaded from {weight_path}')
+        print('pyramids length:', len(self.pyramids))
+
     def forward(self, x):
         results = []
         for i in range(self.return_idx[-1]+1):

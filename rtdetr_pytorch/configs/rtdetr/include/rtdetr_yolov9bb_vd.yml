@@ -12,10 +12,11 @@ RTDETR:
   multi_scale: [480, 512, 544, 576, 608, 640, 640, 640, 672, 704, 736, 768, 800]
 
 YoloV9Backbone:
-  return_idx: [2,3,4]  
+  return_idx: [2,3,4]
+  weight_path: yolov9cbb.pt
 
 HybridEncoder:
-  in_channels: [512, 1024, 1024]
+  in_channels: [512, 512, 512]
   feat_strides: [8, 16, 32]
 
   # intra

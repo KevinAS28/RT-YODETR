@@ -16,6 +16,26 @@ def autopad(k, p=None, d=1):  # kernel, padding, dilation
         p = k // 2 if isinstance(k, int) else [x // 2 for x in k]  # auto-pad
     return p
 
+class ADown(nn.Module):
+    def __init__(self, c1, c2):  # ch_in, ch_out, shortcut, kernels, groups, expand
+        super().__init__()
+        self.c1 = c1
+        self.c2 = c2
+        self.c = c2 // 2
+        self.cv1 = Conv(c1 // 2, self.c, 3, 2, 1)
+        self.cv2 = Conv(c1 // 2, self.c, 1, 1, 0)
+
+    def forward(self, x):
+        x = torch.nn.functional.avg_pool2d(x, 2, 1, 0, False, True)
+        x1,x2 = x.chunk(2, 1)
+        x1 = self.cv1(x1)
+        x2 = torch.nn.functional.max_pool2d(x2, 3, 2, 1)
+        x2 = self.cv2(x2)
+        return torch.cat((x1, x2), 1)
+    
+    def __str__(self):
+        return f'ADown(c1={self.c1}, c2={self.c2})'
+
 class Silence(nn.Module):
     def __init__(self):
         super(Silence, self).__init__()
