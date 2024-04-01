@@ -5,7 +5,7 @@ __all__ = ['YoloV9Backbone']
 
 @register
 class YoloV9Backbone(nn.Module):
-    def __init__(self, return_idx=[2,3,4], weight_path=False):
+    def __init__(self, return_idx=[2,3,4], weight_path=False, freeze=False):
         super().__init__()
         self.return_idx = return_idx
 
@@ -27,8 +27,11 @@ class YoloV9Backbone(nn.Module):
         )            
         if weight_path:
             self.pyramids.load_state_dict(torch.load(weight_path))
-            self.pyramids.requires_grad_(False)
             print(f'weight backbone loaded from {weight_path}')
+        if freeze:
+            self.pyramids.requires_grad_(False)
+            print(f'Backbone freezed')
+            
         print('pyramids length:', len(self.pyramids))
 
     def forward(self, x):

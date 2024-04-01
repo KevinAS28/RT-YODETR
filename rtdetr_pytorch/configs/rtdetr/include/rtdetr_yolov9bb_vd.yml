@@ -14,6 +14,7 @@ RTDETR:
 YoloV9Backbone:
   return_idx: [5,7,9]
   weight_path: yolov9cbb.pt
+  freeze: False
 
 HybridEncoder:
   in_channels: [512, 512, 512]
