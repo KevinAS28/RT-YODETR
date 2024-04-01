@@ -1,0 +1,9 @@
+__include__: [
+  '../dataset/syntetic_fruits.yml',
+  '../runtime.yml',
+  './include/dataloader.yml',
+  './include/optimizer1.yml',
+  './include/rtdetr_cyolov9bb_vd.yml',
+]
+
+output_dir: ./output/rtdetr_cyolov9bb
