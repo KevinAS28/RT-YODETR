@@ -19,15 +19,15 @@ class CYoloV9Backbone(nn.Module):
                 RepNCSPELAN4(128, 256, 128, 64)
             ),
             nn.Sequential(
-                ADown(256, 256, 3, 2),
+                ADown(256, 256),
                 RepNCSPELAN4(256, 512, 256, 128, 1)
             ),            
             nn.Sequential(
-                ADown(512, 1024, 3, 2),
+                ADown(512, 1024),
                 RepNCSPELAN4(1024, 1024, 1024, 256, 1)
             ),            
             nn.Sequential(  
-                ADown(1024, 1024, 3, 2),
+                ADown(1024, 1024),
                 RepNCSPELAN4(1024, 1024, 1024, 256, 1)
             ),  
         )            
