@@ -16,7 +16,7 @@ optimizer:
   params: 
     - 
       params: 'backbone'
-      lr: 0.0001
+      lr: 0.00001
     - 
       params: '^(?=.*encoder(?=.*bias|.*norm.*weight)).*$'
       weight_decay: 0.
