@@ -5,7 +5,7 @@ __all__ = ['YoloV9EBackbone']
 
 @register
 class YoloV9EBackbone(nn.Module):
-    def __init__(self, return_idx=[22, 25, 28], weight_path='yolov9ebb.pt'):
+    def __init__(self, return_idx=[22, 25, 28], weight_path='yolov9ebb.pt', freeze=True):
         super().__init__()
         self.return_idx = return_idx
 
@@ -53,6 +53,13 @@ class YoloV9EBackbone(nn.Module):
         if weight_path:
             self.model.load_state_dict(torch.load(weight_path))
             print(f'weight backbone loaded from {weight_path}')
+        
+        if freeze:
+            self.model.requires_grad_(False)
+            self.requires_grad_(False)
+            for p in self.model.parameters():
+                p.requires_grad = False       
+                     
         print('layers length:', len(self.layers))
 
     def forward(self, x):
@@ -66,4 +73,6 @@ class YoloV9EBackbone(nn.Module):
         return [outs[i] for i in self.return_idx]
     
 if __name__=='__main__':
-    print(YoloV9EBackbone())
+    model = YoloV9EBackbone()
+    print(model)
+    print(model.requires_grad)
