@@ -1,51 +1,53 @@
-import os 
-import argparse
-import sys
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
-
-from src.core import YAMLConfig
-import onnxruntime as ort
-from PIL import Image, ImageDraw
+import os
 
 import torch
-import torch.nn as nn 
+import onnxruntime as ort
+from PIL import Image, ImageDraw, ImageFont
 from torchvision.transforms import ToTensor
+import numpy as np
+
+named_labels = {
+    0: 'person',
+    1: 'bicycle'
+}
+
+def inference_images(model_path, imgs_dir, output_dir, size=(640, 640)):
+    if not os.path.isdir(output_dir):
+        os.makedirs(output_dir)
+
+    totensor = ToTensor()
+    real_imgs = []
+    for img_name in os.listdir(imgs_dir):
+        img_path = os.path.join(imgs_dir, img_name)
+        im = Image.open(img_path).convert('RGB')
+        im = im.resize(size)
+        real_imgs.append((img_name, im))
 
 
-def perform_inference(model_path, images_path , output_dir, output_names=None):
-    preprocessed_imgs = []
-    # for i, img_name in enumerate(images_path):
-    img_path = images_path#os.path.join(images_path, img_name)
-    im = Image.open(img_path).convert('RGB')
-    im = im.resize((640, 640))
-    im_data = ToTensor()(im)[None]
-
+    imgs_preprocessed = torch.stack([totensor(i[1]) for i in real_imgs])
     sess = ort.InferenceSession(model_path)
     output = sess.run(
         # output_names=['labels', 'boxes', 'scores'],
-        output_names=output_names,
-        input_feed={'images': im_data.data.numpy(), "orig_target_sizes": size.data.numpy()}
+        output_names=None,
+        input_feed={'images': imgs_preprocessed.data.numpy(), "orig_target_sizes": torch.tensor([[640, 640]]*len(real_imgs)).data.numpy()}
     )
 
     labels, boxes, scores = output
-
-    draw = ImageDraw.Draw(im)
     thrh = 0.6
-    detected_labs = []
-    for i in range(im_data.shape[0]):
+    font = ImageFont.truetype('DejaVuSans.ttf', 16)
 
+    for i in range(len(real_imgs)):
+        print(f'{i+1}/{len(real_imgs)}')
+
+        draw = ImageDraw.Draw(real_imgs[i][1])
         scr = scores[i]
         lab = labels[i][scr > thrh]
         box = boxes[i][scr > thrh]
 
-        print(i, sum(scr > thrh))
-
         for b in box:
             draw.rectangle(list(b), outline='red',)
-            draw.text((b[0], b[1]), text=str(lab[i]), fill='blue', )
-            detected_labs.append(str(lab[i]))
-    im.save(os.path.join(output_dir, img_path))
+            draw.text((b[0], b[1]), text=named_labels[lab[i]], fill='blue', font=font)
 
-# python tools/export_onnx.py  -c /home/kevin/Custom-RT-DETR/rtdetr_pytorch/configs/rtdetr/rtdetr_yolov9bb_L_cocotrimmed.yml --check -f rtdetr_yolov9bb_24.onnx -r /home/kevin/Custom-RT-DETR/rtdetr_pytorch/checkpoint0024.pth
-print(perform_inference('test.onnx', 'bicycle.jpeg'))
+        im.save(os.path.join(output_dir, real_imgs[i][0]))
 
+inference_images('rtdetr_yolov9bb.onnx', 'imgs', 'outputs')

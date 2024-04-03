@@ -5,8 +5,21 @@ import shutil
 import time
 import json
 
-class ManualBackup:
+class BackupDriver:
+    def __init__(self): pass
+    def backup_dir(self, *args, **kwargs): pass
+    def backup_file(self, *args, **kwargs): pass
+    def copy_dir(self, *args, **kwargs): pass
+    def copy_file(self, *args, **kwargs): pass
+    def get_backups_sorted(self, *args, **kwargs): pass
+    def initiate_backup_dir(self, *args, **kwargs): pass
+    def restore(self, *args, **kwargs): pass
+
+
+
+class ManualBackup(BackupDriver):
     def __init__(self, target_backup_dir='/content/gdrive/My Drive/manual_backup', backup_title='backup_training_output', initiate_backup_dir=False):
+        super().__init__()
         self.target_backup_dir = target_backup_dir
         self.backup_title = backup_title
         self.info_name = 'backup_info.json'

@@ -35,6 +35,7 @@ class YAMLConfig(BaseConfig):
         self.autocast = cfg.get('autocast', dict())
         self.find_unused_parameters = cfg.get('find_unused_parameters', None)
         self.clip_max_norm = cfg.get('clip_max_norm', 0.)
+        self.enable_manual_backup = cfg.get('enable_manual_backup')
 
     @property
     def model(self, ) -> torch.nn.Module:
@@ -114,7 +115,7 @@ class YAMLConfig(BaseConfig):
 
     @property
     def backup_driver(self, ):
-        if self._backup_driver is None:
+        if (self._backup_driver is None) and self.enable_manual_backup:
             self._backup_driver = backup.ManualBackup()
         return self._backup_driver
  

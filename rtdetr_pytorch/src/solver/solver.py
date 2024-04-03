@@ -42,33 +42,40 @@ class BaseSolver(object):
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
 
-    def train(self, ):
-        self.setup()
-        self.optimizer = self.cfg.optimizer
-        self.lr_scheduler = self.cfg.lr_scheduler
+    def train(self, setup_model=True, setup_dataloader=True):
+        if setup_model:
+            self.setup()
+            self.optimizer = self.cfg.optimizer
+            self.lr_scheduler = self.cfg.lr_scheduler
 
         # NOTE instantiating order
         if self.cfg.resume:
-            print('Looking for previous training backups...')
-            sorted_backups = self.cfg.backup_driver.get_backups_sorted()
-            if len(sorted_backups)>0:
-                if len(sorted_backups)>=2:
-                    print('Restoring last 2 backups: ', sorted_backups[-2:])
-                    self.cfg.backup_driver.restore(last_n=-1)
-                    self.cfg.backup_driver.restore(last_n=-2)
+            if self.cfg.enable_manual_backup:
+                print('Looking for previous training backups...')
+                sorted_backups = self.cfg.backup_driver.get_backups_sorted()
+                if len(sorted_backups)>0:
+                    if len(sorted_backups)>=2:
+                        print('Restoring last 2 backups: ', sorted_backups[-2:])
+                        self.cfg.backup_driver.restore(last_n=-1)
+                        self.cfg.backup_driver.restore(last_n=-2)
+                    else:
+                        print('Restoring last backup: ', sorted_backups[0])
+                        self.cfg.backup_driver.restore(last_n=0)                    
                 else:
-                    print('Restoring last backup: ', sorted_backups[0])
-                    self.cfg.backup_driver.restore(last_n=0)                    
+                    print('No previous backups found')
             else:
-                print('No previous backups found')
-
+                print('WARNING: no backup driver enabled')
+                
             print(f'Resume checkpoint from {self.cfg.resume}')
+
+
             self.resume(self.cfg.resume)
 
-        self.train_dataloader = dist.warp_loader(self.cfg.train_dataloader, \
-            shuffle=self.cfg.train_dataloader.shuffle)
-        self.val_dataloader = dist.warp_loader(self.cfg.val_dataloader, \
-            shuffle=self.cfg.val_dataloader.shuffle)
+        if setup_dataloader:
+            self.train_dataloader = dist.warp_loader(self.cfg.train_dataloader, \
+                shuffle=self.cfg.train_dataloader.shuffle)
+            self.val_dataloader = dist.warp_loader(self.cfg.val_dataloader, \
+                shuffle=self.cfg.val_dataloader.shuffle)
 
 
     def eval(self, ):

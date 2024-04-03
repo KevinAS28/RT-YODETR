@@ -1,5 +1,7 @@
 '''by lyuwenyu
 '''
+import os
+
 import torch
 import torch.nn as nn 
 import torch.nn.functional as F 
@@ -187,16 +189,26 @@ class PResNet(nn.Module):
 
         if freeze_at >= 0:
             self._freeze_parameters(self.conv1)
-            for i in range(min(freeze_at, num_stages)):
+            for i in range(freeze_at):
                 self._freeze_parameters(self.res_layers[i])
+            if freeze_at==len(self.res_layers):
+                print('Freeze the entire resnet')
+                self.requires_grad_(False)
 
         if freeze_norm:
             self._freeze_norm(self)
 
         if pretrained:
-            state = torch.hub.load_state_dict_from_url(donwload_url[depth])
+            pretrained_src = None
+            if os.path.isfile(str(pretrained)):
+                state = torch.load(str(pretrained))
+                pretrained_src = f'file {pretrained}'
+            else:
+                state = torch.hub.load_state_dict_from_url(donwload_url[depth])
+                pretrained_src = f'url {donwload_url[depth]}'
+
             self.load_state_dict(state)
-            print(f'Load PResNet{depth} state_dict')
+            print(f'Loaded PResNet{depth} state_dict from {pretrained_src}')
             
     def _freeze_parameters(self, m: nn.Module):
         for p in m.parameters():
