@@ -19,7 +19,7 @@ from .det_engine import train_one_epoch, evaluate
 class DetSolver(BaseSolver):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.cfg.enable_manual_backup:
+        if self.cfg.enable_backup:
             self.backup_driver = self.cfg.backup_driver
         
 
@@ -112,7 +112,7 @@ class DetSolver(BaseSolver):
 
                 epoch_time = time.time() - epoch_start_time
                 epoch_time_str = str(datetime.timedelta(seconds=int(epoch_time)))    
-                if self.cfg.enable_manual_backup:
+                if self.cfg.enable_backup:
                     self.backup_driver.backup(dirs_backup=[self.output_dir / 'eval'], files_backup=files_to_backups)
                 print(f'Epoch {epoch} ended at: {time.ctime()} | time used for epoch {epoch}: {epoch_time_str}')
 
@@ -132,6 +132,6 @@ class DetSolver(BaseSolver):
                 
         if self.output_dir:
             dist.save_on_master(coco_evaluator.coco_eval["bbox"].eval, self.output_dir / "eval.pth")
-        if self.cfg.enable_manual_backup:
+        if self.cfg.enable_backup:
             Thread(target=self.backup_driver.backup, args=[[self.output_dir], [], []]).start()        
         return

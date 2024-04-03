@@ -50,7 +50,7 @@ class BaseSolver(object):
 
         # NOTE instantiating order
         if self.cfg.resume:
-            if self.cfg.enable_manual_backup:
+            if self.cfg.enable_backup:
                 print('Looking for previous training backups...')
                 sorted_backups = self.cfg.backup_driver.get_backups_sorted()
                 if len(sorted_backups)>0:

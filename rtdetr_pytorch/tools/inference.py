@@ -1,4 +1,6 @@
 import os
+import sys
+import argparse
 
 import torch
 import onnxruntime as ort
@@ -39,7 +41,8 @@ def inference_images(model_path, imgs_dir, output_dir, size=(640, 640)):
     for i in range(len(real_imgs)):
         print(f'{i+1}/{len(real_imgs)}')
 
-        draw = ImageDraw.Draw(real_imgs[i][1])
+        im = real_imgs[i][1]
+        draw = ImageDraw.Draw(im)
         scr = scores[i]
         lab = labels[i][scr > thrh]
         box = boxes[i][scr > thrh]
@@ -50,4 +53,16 @@ def inference_images(model_path, imgs_dir, output_dir, size=(640, 640)):
 
         im.save(os.path.join(output_dir, real_imgs[i][0]))
 
-inference_images('rtdetr_yolov9bb.onnx', 'imgs', 'outputs')
+def main(args):
+    inference_images(args.model, args.imgs_dir, args.output_dir, (args.size, args.size))
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--model', '-m', type=str, )
+    parser.add_argument('--imgs_dir', '-i', type=str, )
+    parser.add_argument('--output_dir', '-o', type=str, )
+    parser.add_argument('--size', '-s', type=int, default=640)
+
+    args = parser.parse_args()
+
+    main(args)

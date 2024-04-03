@@ -4,6 +4,7 @@ __include__: [
   './include/dataloader.yml',
   './include/optimizer1.yml',
   './include/rtdetr_cyolov9bb_vd.yml',
+  './include/backup.yml',
 ]
 
 output_dir: ./output/rtdetr_cyolov9bb

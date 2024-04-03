@@ -5,6 +5,11 @@ import shutil
 import time
 import json
 
+from src.core import register
+
+__all__ = ['BackupDriver', 'ManualBackup']
+
+@register
 class BackupDriver:
     def __init__(self): pass
     def backup_dir(self, *args, **kwargs): pass
@@ -15,10 +20,9 @@ class BackupDriver:
     def initiate_backup_dir(self, *args, **kwargs): pass
     def restore(self, *args, **kwargs): pass
 
-
-
+@register
 class ManualBackup(BackupDriver):
-    def __init__(self, target_backup_dir='/content/gdrive/My Drive/manual_backup', backup_title='backup_training_output', initiate_backup_dir=False):
+    def __init__(self, target_backup_dir, backup_title='backup_training_output', initiate_backup_dir=False):
         super().__init__()
         self.target_backup_dir = target_backup_dir
         self.backup_title = backup_title
@@ -39,7 +43,7 @@ class ManualBackup(BackupDriver):
             tbp.write('.')
         os.remove(test_file)
 
-        print(f'Manual Backup Driver Initiated: {str(self)}')
+        # print(f'Manual Backup Driver Initiated: {str(self)}')
 
         if initiate_backup_dir:
             self.initiate_backup_dir(target_backup_dir, backup_title)

@@ -1,0 +1,6 @@
+enable_backup: True
+backup:
+  type: ManualBackup
+  target_backup_dir: /content/gdrive/My Drive/manual_backup
+  backup_title: backup_training_output
+  initiate_backup_dir: False

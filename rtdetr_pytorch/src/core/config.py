@@ -35,7 +35,8 @@ class BaseConfig(object):
         self._val_dataloader :DataLoader = None 
         self._ema :nn.Module = None 
         self._scaler :GradScaler = None 
-        self._backup_driver: backup.ManualBackup = None
+        self.enable_backup: bool = None
+        self._backup_driver: backup.BackupDriver = None
 
         self.train_dataset :Dataset = None
         self.val_dataset :Dataset = None

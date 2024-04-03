@@ -9,6 +9,7 @@ train_dataloader:
     type: CocoDetection
     img_folder: /content/coco/images/train2017
     ann_file: /content/coco/annotations/new_instances_train2017_coco_trimmed.json
+    # ann_file: /home/kevin/Custom-RT-DETR/rtdetr_pytorch/new1_instances_train2017_coco_trimmed.json
     transforms:
       type: Compose
       ops: ~
@@ -24,6 +25,7 @@ val_dataloader:
     type: CocoDetection
     img_folder: /content/coco/images/val2017
     ann_file: /content/coco/annotations/new_instances_val2017_coco_trimmed.json
+    # ann_file: /home/kevin/Custom-RT-DETR/rtdetr_pytorch/new1_instances_val2017_coco_trimmed.json
     transforms:
       type: Compose
       ops: ~ 

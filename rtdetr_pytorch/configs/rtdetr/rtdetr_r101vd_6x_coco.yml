@@ -4,6 +4,7 @@ __include__: [
   './include/dataloader.yml',
   './include/optimizer.yml',
   './include/rtdetr_r50vd.yml',
+  './include/backup.yml',
 ]
 
 PResNet:
