@@ -46,7 +46,7 @@ def inference_images(model_path, imgs_dir, output_dir, size=(640, 640)):
 
         for b in box:
             draw.rectangle(list(b), outline='red',)
-            draw.text((b[0], b[1]), text=named_labels[lab[i]], fill='blue', font=font)
+            draw.text((b[0], b[1]), text=f'{lab[i]} {named_labels[lab[i]]}', fill='blue', font=font)
 
         im.save(os.path.join(output_dir, real_imgs[i][0]))
 
