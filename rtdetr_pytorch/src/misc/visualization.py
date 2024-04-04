@@ -28,7 +28,7 @@ def vizualize_apvals(epoch_logs):
     x = list(range(1, len(epoch_logs)+1))
     ap_labels = ['APval 95', 'APval 50', 'APval 75', 'APval S', 'APval M', 'APval L']
     all_ys = {
-        k:[ep['test_coco_eval_bbox'][i] for ep in epoch_logs] for i, k in enumerate(ap_labels)
+        k:[100*ep['test_coco_eval_bbox'][i] for ep in epoch_logs] for i, k in enumerate(ap_labels)
     }
 
     y_len = len(epoch_logs[0]['test_coco_eval_bbox'])
