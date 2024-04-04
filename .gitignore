@@ -161,7 +161,6 @@ cython_debug/
 
 
 .DS_Store
-*.ipynb
 *.pth 
 *.pdparams
 *.onnx
@@ -170,3 +169,4 @@ rtdetr_pytorch/dataset/*
 rtdetr_pytorch/*.pt
 rtdetr_pytorch/*.jpeg
 rtdetr_pytorch/imgs/*
+rtdetr_pytorch/new1*
