@@ -10,7 +10,7 @@ def visualize_train_loss(epoch_logs):
     x = list(range(1, len(epoch_logs)+1)) 
     y = [i['train_loss'] for i in epoch_logs]  
 
-    plt.figure(figsize=( 3*(int(len(x)/ (10 if len(x)>10 else len(x)))), 2*(int(len(y)/ (20 if len(y)>20 else len(y))))))
+    plt.figure(figsize=( 5*(int(len(x)/ (10 if len(x)>10 else len(x)))), 5*(int(len(y)/ (20 if len(y)>20 else len(y))))))
     plt.xticks(x, [f"{int(i)}" for i in x])
     plt.plot(x, y)  
     plt.xlabel('Epoch')
@@ -66,4 +66,4 @@ def visualize_train_log(log_path, output_dir):
         print(f'ERROR: visualize_train_log: {str(e)} \n {traceback.format_exc()}')
         
 if __name__=='__main__':
-    visualize_train_log('/home/kevin/Custom-RT-DETR/rtdetr_pytorch/tools/train_log_parsed_json.txt', 'graphs_output_rtdetr_r50')
+    visualize_train_log('/home/kevin/Custom-RT-DETR/rtdetr_pytorch/tools/train_log_json.txt', 'graphs_output_rtdetr_yolov9bb')
