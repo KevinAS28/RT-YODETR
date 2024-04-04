@@ -116,7 +116,7 @@ class DetSolver(BaseSolver):
                 epoch_time = time.time() - epoch_start_time
                 epoch_time_str = str(datetime.timedelta(seconds=int(epoch_time)))    
                 if self.cfg.enable_backup:
-                    self.backup_driver.backup(dirs_backup=[self.output_dir / 'eval'], files_backup=files_to_backups)
+                    self.backup_driver.backup(dirs_backup=[self.output_dir / 'eval', self.output_dir / 'viz'], files_backup=files_to_backups)
                 
                 print(f'Epoch {epoch} ended at: {time.ctime()} | time used for epoch {epoch}: {epoch_time_str}')
 
