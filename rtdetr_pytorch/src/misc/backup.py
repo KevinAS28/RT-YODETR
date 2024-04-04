@@ -7,7 +7,7 @@ import json
 
 from src.core import register
 
-__all__ = ['BackupDriver', 'ManualBackup']
+__all__ = ['BackupDriver', 'RawBackup']
 
 @register
 class BackupDriver:
@@ -21,7 +21,7 @@ class BackupDriver:
     def restore(self, *args, **kwargs): pass
 
 @register
-class ManualBackup(BackupDriver):
+class RawBackup(BackupDriver):
     def __init__(self, target_backup_dir, backup_title='backup_training_output', initiate_backup_dir=False):
         super().__init__()
         self.target_backup_dir = target_backup_dir
@@ -233,4 +233,4 @@ class ManualBackup(BackupDriver):
         return restored
 
     def __str__(self):
-        return f'ManualBackup(target_backup_dir="{self.target_backup_dir}", backup_title="{self.backup_title}")'
+        return f'RawBackup(target_backup_dir="{self.target_backup_dir}", backup_title="{self.backup_title}")'
