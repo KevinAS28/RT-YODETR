@@ -11,7 +11,7 @@ __all__ = ['BackupDriver', 'RawBackup']
 
 @register
 class BackupDriver:
-    def __init__(self): pass
+    def __init__(self, *args, **kwargs): pass
     def backup_dir(self, *args, **kwargs): pass
     def backup_file(self, *args, **kwargs): pass
     def copy_dir(self, *args, **kwargs): pass
