@@ -3,6 +3,7 @@ import os
 import json
 import re
 import traceback
+import argparse
 
 import matplotlib.pyplot as plt
 
@@ -64,6 +65,17 @@ def visualize_train_log(log_path, output_dir):
         vizualize_apvals(epoch_logs).savefig(os.path.join(output_dir, 'apvals.png'))
     except Exception as e:
         print(f'ERROR: visualize_train_log: {str(e)} \n {traceback.format_exc()}')
-        
+
+def main(args):
+    visualize_train_log(log_path=args.log_path, output_dir=args.output_dir)
+
 if __name__=='__main__':
-    visualize_train_log('/home/kevin/Custom-RT-DETR/rtdetr_pytorch/tools/train_log_json.txt', 'graphs_output_rtdetr_yolov9bb')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--log_path', '-l', type=str, default='/home/kevin/Custom-RT-DETR/rtdetr_pytorch/tools/train_log_json.txt')
+    parser.add_argument('--output_dir', '-o', type=str, default='graphs_output_rtdetr_yolov9bb')
+
+    args = parser.parse_args()
+
+    main(args)    
+    
+    
