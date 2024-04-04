@@ -14,7 +14,7 @@ named_labels = {
     1: 'bicycle'
 }
 
-def inference_images(model_path, imgs_dir, output_dir, size=(640, 640), font_file='DejaVuSans.ttf', thrh=0.6, box_color='red', text_color='blue', class_labels=json.dumps(named_labels)):
+def inference_images(model_path, imgs_dir, output_dir, size=(640, 640), font_file='DejaVuSans.ttf', thrh=0.6, box_color='red', text_color='blue', class_labels=json.dumps(named_labels), show_index=True, show_percent=True):
     class_labels = json.loads(class_labels)
 
     if not os.path.isdir(output_dir):
@@ -51,17 +51,18 @@ def inference_images(model_path, imgs_dir, output_dir, size=(640, 640), font_fil
         scr = scores[i]
         lab = labels[i][scr > thrh]
         box = boxes[i][scr > thrh]
-
+        scr_str = '-'+str(round(scr[i]*100, 4))+'%' if show_percent else ''
+        lab_str = lab[i]+'-' if show_index else ''
         for b in box:
             draw.rectangle(list(b), outline=box_color,)
-            draw.text((b[0], b[1]), text=f'{lab[i]} {named_labels[lab[i]]}', fill=text_color, font=font)
+            draw.text((b[0], b[1]), text=f'{lab_str}{named_labels[lab[i]]}{scr_str}', fill=text_color, font=font)
 
         out_file_path = os.path.join(output_dir, real_imgs[i][0])
         im.save(out_file_path)
         print(f'{i+1}/{len(real_imgs)}: {out_file_path}')
 
 def main(args):
-    inference_images(args.model, args.imgs_dir, args.output_dir, (args.size, args.size), args.font_file, args.threshold, args.box_color, args.text_color, args.classes_dict)
+    inference_images(args.model, args.imgs_dir, args.output_dir, (args.size, args.size), args.font_file, args.threshold, args.box_color, args.text_color, args.classes_dict, args.show_index, args.show_percent)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -73,6 +74,8 @@ if __name__ == '__main__':
     parser.add_argument('--threshold', '-t', type=float, default=0.6, help='a float number from 0 to 1 (0.6, 0.99)')
     parser.add_argument('--box_color', '-b', type=str, default='red')
     parser.add_argument('--text_color', type=str, default='blue')
+    parser.add_argument('--show_index', action='store_true', default=False)
+    parser.add_argument('--show_percent', action='store_true', default=False)
     parser.add_argument('--classes_dict', '-c', type=str, default=json.dumps(named_labels))
 
 
