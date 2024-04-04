@@ -2,5 +2,6 @@ enable_backup: True
 backup:
   type: RawBackup
   target_backup_dir: /content/gdrive/My Drive/raw_backup
+  # target_backup_dir: /home/kevin/Custom-RT-DETR/rtdetr_pytorch/output
   backup_title: backup_training_output
   initiate_backup_dir: False

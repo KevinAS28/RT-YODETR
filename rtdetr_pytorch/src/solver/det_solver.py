@@ -9,7 +9,7 @@ from threading import Thread
 
 import torch 
 
-from src.misc import dist
+from src.misc import dist, visualization
 from src.data import get_coco_api_from_dataset
 
 from .solver import BaseSolver
@@ -104,7 +104,10 @@ class DetSolver(BaseSolver):
                             for name in filenames:
                                 torch.save(coco_evaluator.coco_eval["bbox"].eval,
                                         self.output_dir / "eval" / name)
-                
+                                
+                print('visualize the log...')
+                visualization.visualize_train_log(self.output_dir / "log.txt", self.output_dir / 'viz')
+
                 files_to_backups = []
                 files_to_backups.extend(checkpoint_paths)
                 files_to_backups.append(self.output_dir / "log.txt")
@@ -114,6 +117,7 @@ class DetSolver(BaseSolver):
                 epoch_time_str = str(datetime.timedelta(seconds=int(epoch_time)))    
                 if self.cfg.enable_backup:
                     self.backup_driver.backup(dirs_backup=[self.output_dir / 'eval'], files_backup=files_to_backups)
+                
                 print(f'Epoch {epoch} ended at: {time.ctime()} | time used for epoch {epoch}: {epoch_time_str}')
 
             total_time = time.time() - start_time
