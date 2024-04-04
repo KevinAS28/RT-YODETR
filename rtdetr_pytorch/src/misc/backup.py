@@ -43,8 +43,6 @@ class RawBackup(BackupDriver):
             tbp.write('.')
         os.remove(test_file)
 
-        # print(f'Manual Backup Driver Initiated: {str(self)}')
-
         if initiate_backup_dir:
             self.initiate_backup_dir(target_backup_dir, backup_title)
         
