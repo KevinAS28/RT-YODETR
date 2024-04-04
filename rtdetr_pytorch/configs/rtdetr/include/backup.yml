@@ -5,3 +5,4 @@ backup:
   # target_backup_dir: /home/kevin/Custom-RT-DETR/rtdetr_pytorch/output
   backup_title: backup_training_output
   initiate_backup_dir: False
+  max_backup_count: 3

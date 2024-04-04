@@ -22,12 +22,13 @@ class BackupDriver:
 
 @register
 class RawBackup(BackupDriver):
-    def __init__(self, target_backup_dir, backup_title='backup_training_output', initiate_backup_dir=False):
+    def __init__(self, target_backup_dir, backup_title='backup_training_output', initiate_backup_dir=False, max_backup_count=3):
         super().__init__()
         self.target_backup_dir = target_backup_dir
         self.backup_title = backup_title
         self.info_name = 'backup_info.json'
         self.backup_index = 0
+        self.max_backup_count = max_backup_count
 
         self.backup_names = {
             'dirs': 'directories_backups',
@@ -108,14 +109,14 @@ class RawBackup(BackupDriver):
         date_backupdir = [date_backupdir[key] for key in sorted(date_backupdir)]
         return date_backupdir
     
-    def backup(self, dirs_backup:list=[], files_backup:list=[], other_objects:dict=dict(), max_backup_count=3, initiate_backup_dir=True):
+    def backup(self, dirs_backup:list=[], files_backup:list=[], other_objects:dict=dict(), initiate_backup_dir=True):
         if initiate_backup_dir:
             self.initiate_backup_dir(self.target_backup_dir, self.backup_title)
 
-        if max_backup_count>0:
+        if self.max_backup_count>0:
             date_backupdir = self.get_backups_sorted()
-            if len(date_backupdir)>max_backup_count:
-                to_delete_backupdirs = date_backupdir[:len(date_backupdir)-max_backup_count]
+            if len(date_backupdir)>self.max_backup_count:
+                to_delete_backupdirs = date_backupdir[:len(date_backupdir)-self.max_backup_count]
                 print('Old backups will be removed:', to_delete_backupdirs)
                 for td_backupdir in to_delete_backupdirs:
                     to_delete = os.path.join(self.target_backup_dir, td_backupdir)
