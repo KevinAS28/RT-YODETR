@@ -6,7 +6,7 @@ postprocessor: RTDETRPostProcessor
 
 
 RTDETR: 
-  backbone: YoloV9EBackbone
+  backbone: CYoloV9EBackbone
   encoder: HybridEncoder
   decoder: RTDETRTransformer
   multi_scale: [480, 512, 544, 576, 608, 640, 640, 640, 672, 704, 736, 768, 800]

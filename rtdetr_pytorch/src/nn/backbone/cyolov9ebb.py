@@ -1,10 +1,10 @@
 from .commons_pt import *
 from src.core import register
 
-__all__ = ['YoloV9EBackbone']
+__all__ = ['CYoloV9EBackbone']
 
 @register
-class YoloV9EBackbone(nn.Module):
+class CYoloV9EBackbone(nn.Module):
     def __init__(self, return_idx=[22, 25, 28], weight_path='yolov9ebb.pt', freeze=True):
         super().__init__()
         self.return_idx = return_idx
@@ -73,6 +73,6 @@ class YoloV9EBackbone(nn.Module):
         return [outs[i] for i in self.return_idx]
     
 if __name__=='__main__':
-    model = YoloV9EBackbone()
+    model = CYoloV9EBackbone()
     print(model)
     print(model.requires_grad)
