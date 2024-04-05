@@ -10,14 +10,14 @@ RTDETR:
   encoder: HybridEncoder
   decoder: RTDETRTransformer
   multi_scale: [480, 512, 544, 576, 608, 640, 640, 640, 672, 704, 736, 768, 800]
-
+ 
 YoloV9EBackbone:
-  return_idx: [22, 25, 28]
-  weight_path: yolov9ebb.pt
+  return_idx: [5, 7, 9, 22, 25, 28]
+  weight_path: /home/kevin/Custom-RT-DETR/rtdetr_pytorch/yolov9ebb.pt
   freeze: True
 
 HybridEncoder:
-  in_channels: [512, 1024, 1024]
+  in_channels: [512, 1024, 1024, 512, 1024, 1024]
   feat_strides: [8, 16, 32]
 
   # intra

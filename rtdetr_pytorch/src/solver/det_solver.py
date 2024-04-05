@@ -39,8 +39,10 @@ class DetSolver(BaseSolver):
 
         args = self.cfg 
         
-        n_parameters = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
-        print('number of params:', n_parameters)
+        n_trainable_parameters = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
+        n_all_parameters = sum(p.numel() for p in self.model.parameters())
+        print('Number of trainable parameters:', n_trainable_parameters)
+        print('Number of all parameters:', n_all_parameters)
 
         if run_actual:
             base_ds = get_coco_api_from_dataset(self.val_dataloader.dataset)

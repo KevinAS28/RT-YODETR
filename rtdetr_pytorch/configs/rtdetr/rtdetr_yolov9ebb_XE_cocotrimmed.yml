@@ -1,0 +1,10 @@
+__include__: [
+  '../dataset/coco_trimmed.yml',
+  '../runtime.yml',
+  './include/dataloader.yml',
+  './include/optimizer.yml',
+  './include/rtdetr_yolov9ebb_vd.yml',
+  './include/backup.yml',
+]
+
+output_dir: ./output/rtdetr_yolov9ebb
