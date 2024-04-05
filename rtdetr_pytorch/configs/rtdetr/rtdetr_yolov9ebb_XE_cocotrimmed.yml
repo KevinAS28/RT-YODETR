@@ -7,4 +7,4 @@ __include__: [
   './include/backup.yml',
 ]
 
-output_dir: ./output/rtdetr_yolov9ebb
+output_dir: ./output/rtdetrxe_yolov9ebb
