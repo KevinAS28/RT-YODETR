@@ -3,8 +3,8 @@ __include__: [
   '../runtime.yml',
   './include/dataloader.yml',
   './include/optimizer.yml',
-  './include/rtdetr_yolov9bb_vd.yml',
+  './include/rtdetr_cyolov9ebb_vd.yml',
   './include/backup.yml',
 ]
 
-output_dir: ./output/rtdetr_yolov9bb
+output_dir: ./output/rtdetr_cyolov9ebb
