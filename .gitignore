@@ -174,3 +174,4 @@ rtdetr_pytorch/new1*
 rtdetr_pytorch/font
 rtdetr_pytorch/graph_rtdetr*
 rtdetr_pytorch/output
+rtdetr_pytorch/*.Identifier

@@ -1,4 +1,0 @@
-[ZoneTransfer]
-ZoneId=3
-ReferrerUrl=https://github.com/lyuwenyu/storage/releases/
-HostUrl=https://objects.githubusercontent.com/github-production-release-asset-2e65be/676791659/67075a6b-2f04-405f-a904-687d07c96ef1?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20240404%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240404T135826Z&X-Amz-Expires=300&X-Amz-Signature=d423da2e4c6a29e05fc76dc7d72707f0e8549f3d533fa09cb0f575009c81c2bd&X-Amz-SignedHeaders=host&actor_id=40710024&key_id=0&repo_id=676791659&response-content-disposition=attachment%3B%20filename%3Drtdetrv2_r50vd_6x_coco_full.pth&response-content-type=application%2Foctet-stream
