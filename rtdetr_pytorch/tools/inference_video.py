@@ -14,8 +14,8 @@ named_labels = {
     1: 'bicycle'
 }
 
-def preprocess_input(frame):
-    frame = cv2.resize(frame, (640, 640))
+def preprocess_input(frame, size):
+    frame = cv2.resize(frame, (size, size))
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     return frame
 
@@ -29,8 +29,13 @@ def inference_imgs(ort_session, input_data):
     labels, boxes, scores = ort_session.run(None, {'images': input_data.data.numpy(), 'orig_target_sizes': torch.tensor([[640, 640]]).data.numpy()})
     return labels, boxes, scores
 
-def stream_video(video_path, ort_session, thrh, show_stream=False):
+def stream_video(video_path, ort_session, size, thrh, show_stream=False, out_video_path=False):
     cap = cv2.VideoCapture(video_path)
+    save_video_output = len(out_video_path)>0
+
+    if save_video_output:
+        fourcc_code = cv2.VideoWriter_fourcc(*'X264')
+        video_writer = cv2.VideoWriter(out_video_path, fourcc_code, 25.0, (size, size))  # Adjust FPS if needed
     
     if not cap.isOpened():
         print("Error opening video!")
@@ -60,7 +65,7 @@ def stream_video(video_path, ort_session, thrh, show_stream=False):
                     continue
                 
                 inference_start_time = time.time()
-                preprocessed_frame = preprocess_input(frame)  # Apply preprocessing
+                preprocessed_frame = preprocess_input(frame, size)  # Apply preprocessing
                 input_data = torch.stack([totensor(preprocessed_frame)])
                 labels, boxes, scores = inference_imgs(ort_session, input_data)
                 inference_time = time.time()-inference_start_time
@@ -90,12 +95,18 @@ def stream_video(video_path, ort_session, thrh, show_stream=False):
                 if show_stream:
                     cv2.imshow("Video with Object Detection", cv2.cvtColor(postprocessed_frame, cv2.COLOR_RGB2BGR))
 
+                if save_video_output:
+                    video_writer.write(postprocessed_frame)
+
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
+
             except KeyboardInterrupt:
                 print('Keyboard interrupt')
                 break
 
+    if save_video_output:
+        video_writer.release()
     cap.release()
     cv2.destroyAllWindows()
 
@@ -105,7 +116,7 @@ def stream_video(video_path, ort_session, thrh, show_stream=False):
 
 def main(args):
     ort_session = get_ort_session(args.model)
-    frame_count, eplased_time, fps, avg_inference_time, detected_class_frame = stream_video(args.video, ort_session, args.threshold, args.show_stream)
+    frame_count, eplased_time, fps, avg_inference_time, detected_class_frame = stream_video(args.video, ort_session, args.size, args.threshold, args.show_stream, args.save_video)
     print('Frame count:', frame_count)
     print('Eplased time: ', f'{eplased_time:.4f}s')
     print('Average FPS (with preprocessing and postprocessing):', fps)
@@ -118,7 +129,9 @@ if __name__=='__main__':
     parser.add_argument('--video', '-v', type=str, default='bicycle_thief.mp4')
     parser.add_argument('--model', '-m', type=str, default='rtdetr_yolov9bb_ep27.onnx')
     parser.add_argument('--threshold', '-t', type=float, default=0.7)
-    parser.add_argument('--show_stream', '-ss', action='store_true', default=True)
+    parser.add_argument('--show-stream', '-ss', action='store_true', default=True)
+    parser.add_argument('--size', '-s', type=int, default=640)
+    parser.add_argument('--save-video', '-sv', type=str, default='', help='have to be mkv. set empty to not save the output')
     args = parser.parse_args()
 
     main(args)

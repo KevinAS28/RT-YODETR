@@ -88,19 +88,19 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', '-m', type=str, )
-    parser.add_argument('--imgs_dir', '-i', type=str, )
-    parser.add_argument('--output_dir', '-o', type=str, )
+    parser.add_argument('--imgs-dir', '-i', type=str, )
+    parser.add_argument('--output-dir', '-o', type=str, )
     parser.add_argument('--size', '-s', type=int, default=640)
-    parser.add_argument('--font_file', '-f', type=str, default='DejaVuSans.ttf')
+    parser.add_argument('--font-file', '-f', type=str, default='DejaVuSans.ttf')
     parser.add_argument('--threshold', '-t', type=float, default=0.6, help='a float number from 0 to 1 (0.6, 0.99)')
-    parser.add_argument('--box_color', '-b', type=str, default='red')
-    parser.add_argument('--text_color', type=str, default='blue')
-    parser.add_argument('--show_index', action='store_true', default=False)
-    parser.add_argument('--show_percent', action='store_true', default=False)
-    parser.add_argument('--classes_dict', '-c', type=str, default=json.dumps(named_labels))
+    parser.add_argument('--box-color', '-b', type=str, default='red')
+    parser.add_argument('--text-color', type=str, default='blue')
+    parser.add_argument('--show-index', action='store_true', default=False)
+    parser.add_argument('--show-percent', action='store_true', default=False)
+    parser.add_argument('--classes-dict', '-c', type=str, default=json.dumps(named_labels))
 
     args = parser.parse_args()
 
     main(args)
 
-    # python3 tools/inference.py --model=rtdetr_yolov9bb_ep27.onnx --imgs_dir=/home/kevin/Custom-RT-DETR/rtdetr_pytorch/imgs --output_dir=/home/kevin/Custom-RT-DETR/rtdetr_pytorch/output --font_file=/home/kevin/Custom-RT-DETR/rtdetr_pytorch/font/Swansea-q3pd.ttf -t 0.8 --text_color=white  --show_percent
+    # python3 tools/inference.py --model=rtdetr_yolov9bb_ep27.onnx --imgs-dir=/home/kevin/Custom-RT-DETR/rtdetr_pytorch/imgs --output-dir=/home/kevin/Custom-RT-DETR/rtdetr_pytorch/output --font-file=/home/kevin/Custom-RT-DETR/rtdetr_pytorch/font/Swansea-q3pd.ttf -t 0.8 --text-color=white  --show-percent
