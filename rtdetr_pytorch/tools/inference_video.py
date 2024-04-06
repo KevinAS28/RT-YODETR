@@ -117,13 +117,23 @@ def stream_video(video_path, ort_session, size, thrh, show_stream=False, out_vid
 def main(args):
     ort_session = get_ort_session(args.model)
     frame_count, eplased_time, fps, avg_inference_time, detected_class_frame = stream_video(args.video, ort_session, args.size, args.threshold, args.show_stream, args.save_video)
-    print('Frame count:', frame_count)
-    print('Eplased time: ', f'{eplased_time:.4f}s')
-    print('Average FPS (with preprocessing and postprocessing):', fps)
-    print('Average inference time per seconds: ', f'{(avg_inference_time):.4f}s')    
-    print('Class detected frame count:')
-    print(json.dumps(detected_class_frame, indent=4))
-
+    if args.print_format in ['', 'empty']:
+        print('Frame count:', frame_count)
+        print('Eplased time: ', f'{eplased_time:.4f}s')
+        print('Average FPS (with preprocessing and postprocessing):', fps)
+        print('Average inference time per seconds: ', f'{(avg_inference_time):.4f}s')    
+        print('Class detected frame count:')
+        print(json.dumps(detected_class_frame, indent=4))
+    if args.print_format=='json':
+        output_toprint = {
+            'model': args.model,
+            'frame_count': frame_count, 
+            'eplased_time': f'{eplased_time:.4f}s',
+            'avg_fps': fps,
+            'avg_inference_time': avg_inference_time,
+            'class_detected_frame_count': detected_class_frame
+        }
+        print(json.dumps(output_toprint), indent=4)
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--video', '-v', type=str, default='bicycle_thief.mp4')
@@ -132,6 +142,7 @@ if __name__=='__main__':
     parser.add_argument('--show-stream', '-ss', action='store_true', default=True)
     parser.add_argument('--size', '-s', type=int, default=640)
     parser.add_argument('--save-video', '-sv', type=str, default='', help='have to be mkv. set empty to not save the output')
+    parser.add_argument('--print-fromat', '', type=str, default='', help='empty or json')
     args = parser.parse_args()
 
     main(args)
