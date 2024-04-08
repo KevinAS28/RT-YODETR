@@ -13,11 +13,6 @@ import onnxruntime as ort
 
 from src.core import YAMLConfig
 
-named_labels = {
-    0: 'person',
-    1: 'bicycle'
-}
-
 def get_ort_session(model_path):
     # ort.set_default_logger_severity(1)
     print('ONNX device:', ort.get_device())
@@ -66,7 +61,13 @@ def inference_imgs_onnx(ort_session, input_data, size):
     labels, boxes, scores = ort_session.run(None, {'images': input_data.data.numpy(), 'orig_target_sizes': orig_target_sizes.data.numpy()})
     return labels, boxes, scores
 
-def stream_video(video_path, inference_engine, size, encoder='XVID', thrh=0.65, show_stream=False, out_video_path=''):
+def isjson(json_content):
+    try:
+        return json.loads(json_content)
+    except json.JSONDecodeError:
+        return False
+
+def stream_video(video_path, inference_engine, size, classes_labels, encoder='XVID', thrh=0.65, show_stream=False, out_video_path=''):
     cap = cv2.VideoCapture(video_path)
     save_video_output = len(out_video_path)>0
 
@@ -87,82 +88,82 @@ def stream_video(video_path, inference_engine, size, encoder='XVID', thrh=0.65, 
     eplased_time = 1
     fps = 0
     detected_class_frame = {
-        name:0 for name in named_labels.values()
+        name:0 for name in classes_labels.values()
     }
 
     preprocess_transformations = trfmv2.Compose([
         trfmv2.ToImageTensor(),
         trfmv2.ConvertImageDtype(),    
-        trfmv2.Resize(size=(640, 640), antialias=True),
+        trfmv2.Resize(size=(size, size), antialias=True),
     ])
 
     print('Stream started')
     while True:
-            try:
-                ret, frame = cap.read()
+        try:
+            ret, frame = cap.read()
 
-                if not ret:
-                    print("Video stream ended or error!")
-                    break
-                if (type(frame)==bool) or (frame is None):
-                    print('bad frame 0')
-                    continue
-                
-                inference_start_time = time.time()
-
-                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                preprocessed_frame = preprocess_transformations(frame)
-                stacked_frames = torch.stack([preprocessed_frame]) 
-
-                labels, boxes, scores = inference_engine(stacked_frames, size)
-                inference_time = time.time()-inference_start_time
-                total_inference_time += inference_time
-                img_index = 0
-
-                scr = scores[img_index]
-                lab = labels[img_index]
-                boxes = boxes[img_index]
-
-                postprocessed_frame = cv2.cvtColor(cv2.resize(frame, (size, size)), cv2.COLOR_BGR2RGB)
-                frame_count += 1
-                fps = frame_count / eplased_time
-
-                if (show_stream or save_video_output)  and len(lab)>0:
-                    for s, l, b in zip(scr, lab, boxes):
-                        if s<=thrh:
-                            continue
-
-                        s, l = float(s), float(l)
-                        b = [int(j) for j in b]
-                        # print('s l b', s, l, b)
-
-                        scr_str = '-'+str(round(s*100, 1))+'%'
-                        
-                        detected_class_frame[named_labels[l]] += 1                        
-                        lab_str = str(named_labels[l])+'-'
-                        postprocessed_frame = cv2.rectangle(postprocessed_frame, tuple(b[:2]), tuple(b[2:4]), color=(0, 0, 255), thickness=2)  # Red rectangle
-                        postprocessed_frame = cv2.putText(postprocessed_frame, f"{lab_str}{scr_str}", tuple(b[:2]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)  # White text        
-
-                if (show_stream or save_video_output):
-                  postprocessed_frame = cv2.putText(postprocessed_frame, f"FPS: {fps:.2f}", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)  # White text           
-
-                if show_stream:
-                    cv2.imshow("Video with Object Detection", postprocessed_frame)    
-                    if cv2.waitKey(20) & 0xFF == ord('q'):
-                        break
-                else:
-                    if frame_count%100==0:
-                        print(f"FPS: {fps:.2f}")
-
-                if save_video_output:
-                    video_writer.write(postprocessed_frame)
-
-
-                eplased_time = time.time()-start_time
-
-            except KeyboardInterrupt:
-                print('Keyboard interrupt')
+            if not ret:
+                print("Video stream ended or error!")
                 break
+            if (type(frame)==bool) or (frame is None):
+                print('bad frame 0')
+                continue
+            
+            inference_start_time = time.time()
+
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            preprocessed_frame = preprocess_transformations(frame)
+            stacked_frames = torch.stack([preprocessed_frame]) 
+
+            labels, boxes, scores = inference_engine(stacked_frames, size)
+            inference_time = time.time()-inference_start_time
+            total_inference_time += inference_time
+            img_index = 0
+
+            scr = scores[img_index]
+            lab = labels[img_index]
+            boxes = boxes[img_index]
+
+            postprocessed_frame = cv2.cvtColor(cv2.resize(frame, (size, size)), cv2.COLOR_BGR2RGB)
+            frame_count += 1
+            fps = frame_count / eplased_time
+
+            if (show_stream or save_video_output)  and len(lab)>0:
+                for s, l, b in zip(scr, lab, boxes):
+                    if s<=thrh:
+                        continue
+
+                    s, l = float(s), int(l)
+                    b = [int(j) for j in b]
+                    # print('s l b', s, l, b)
+
+                    scr_str = '-'+str(round(s*100, 1))+'%'
+                    
+                    detected_class_frame[classes_labels[l]] += 1                        
+                    lab_str = str(classes_labels[l])+'-'
+                    postprocessed_frame = cv2.rectangle(postprocessed_frame, tuple(b[:2]), tuple(b[2:4]), color=(0, 0, 255), thickness=2)  # Red rectangle
+                    postprocessed_frame = cv2.putText(postprocessed_frame, f"{lab_str}{scr_str}", tuple(b[:2]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)  # White text        
+
+            if (show_stream or save_video_output):
+                postprocessed_frame = cv2.putText(postprocessed_frame, f"FPS: {fps:.2f}", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)  # White text           
+
+            if show_stream:
+                cv2.imshow("Video with Object Detection", postprocessed_frame)    
+                if cv2.waitKey(20) & 0xFF == ord('q'):
+                    break
+            else:
+                if frame_count%100==0:
+                    print(f"FPS: {fps:.2f}")
+
+            if save_video_output:
+                video_writer.write(postprocessed_frame)
+
+
+            eplased_time = time.time()-start_time
+
+        except KeyboardInterrupt:
+            print('Keyboard interrupt')
+            break
 
     if save_video_output:
         video_writer.release()
@@ -183,7 +184,17 @@ def main(args):
     else:
         raise ValueError('Invalid engine value')
     
-    frame_count, eplased_time, fps, avg_inference_time, detected_class_frame = stream_video(args.video, inference_engine, args.size, args.encoder, args.threshold, args.show_stream, args.save_video)
+    if os.path.isfile(args.classes_labels):
+        with open(args.classes_labels, 'r') as cd_file:
+            classes_labels = json.loads(cd_file.read())
+    elif isjson(args.classes_labels):
+        classes_labels = json.loads(args.classes_labels)
+    else:
+        raise ValueError('Invalid JSON classes labels')
+    classes_labels = {v:k for k, v in classes_labels.items()}
+    print(classes_labels)
+
+    frame_count, eplased_time, fps, avg_inference_time, detected_class_frame = stream_video(args.video, inference_engine, args.size, classes_labels, args.encoder, args.threshold, args.show_stream, args.save_video)
     if args.print_format in ['', 'empty']:
         print('Frame count:', frame_count)
         print('Eplased time: ', f'{eplased_time:.4f}s')
@@ -215,8 +226,11 @@ if __name__=='__main__':
     parser.add_argument('--save-video', '-sv', type=str, default='', help='must mkv or set empty ('') to not save the output')
     parser.add_argument('--print-format', '-pf', type=str, default='', help='empty or json')
     parser.add_argument('--encoder', type=str, default='XVID', help='XVID MJPG MPEG')
+    parser.add_argument('--classes-labels', '-c', type=str, default='inference_class_labels', help='name_label: index_label | by json path or the json string')
     args = parser.parse_args()
 
     main(args)
 
-# python3 tools/inference_video.py --model=/home/kevin/Custom-RT-DETR/rtdetr_pytorch/rtdetr_yolov9bb_ep27.onnx --video=/home/kevin/Custom-RT-DETR/rtdetr_pytorch/bicycle_thief.mp4 --show-stream --size=640
+# python3 tools/inference_video.py --model=/home/kevin/Custom-RT-DETR/rtdetr_pytorch/rtdetr_yolov9ebb_ep27.pth --engine=torch --video=/home/kevin/Custom-RT-DETR/rtdetr_pytorch/bicycle_thief.mp4 --save-video=out.mkv --size=640 --model-conf=/home/kevin/Custom-RT-DETR/rtdetr_pytorch/configs/rtdetr/rtdetr_cyolov9ebb_L_cocotrimmed.yml
+
+# python tools/inference_video.py --model="C:\Users\kevin\Documents\Custom-RT-DETR\rtdetr_pytorch\rtdetr_yolov9ebb_ep27.pth" --engine=torch --video="C:\Users\kevin\Documents\Custom-RT-DETR\rtdetr_pytorch\bicycle_thief.mp4" --save-video=out.mkv --size=640 --model-conf="C:\Users\kevin\Documents\Custom-RT-DETR\rtdetr_pytorch\configs\rtdetr\rtdetr_cyolov9ebb_L_cocotrimmed.yml" --show-stream

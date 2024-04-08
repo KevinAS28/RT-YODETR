@@ -6,3 +6,5 @@ pycocotools
 PyYAML
 scipy
 matplotlib
+opencv-python
+Pillow
