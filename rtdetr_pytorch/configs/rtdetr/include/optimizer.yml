@@ -4,6 +4,7 @@ ema:
   type: ModelEMA
   decay: 0.9999
   warmups: 2000
+  device: cuda
 
 
 find_unused_parameters: True 
