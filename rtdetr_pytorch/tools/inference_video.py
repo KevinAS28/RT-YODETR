@@ -92,7 +92,7 @@ def stream_video(video_path, inference_engine, size, encoder='XVID', thrh=0.65, 
     }
 
     preprocess_transformations = trfmv2.Compose([
-        trfmv2.ToImageTensor(),
+        trfmv2.ToTensor(),
         trfmv2.ConvertImageDtype(),    
         trfmv2.Resize(size=(640, 640), antialias=True),
     ])
