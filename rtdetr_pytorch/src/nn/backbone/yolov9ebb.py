@@ -76,3 +76,6 @@ if __name__=='__main__':
     model = YoloV9EBackbone()
     print(model)
     print(model.requires_grad)
+    data = torch.randn(1, 3, 640, 640)
+    out = model(data)
+    print([i.shape for i in out])

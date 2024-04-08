@@ -18,9 +18,9 @@ def main(args, ):
     """main
     """
     cfg = YAMLConfig(args.config, resume=args.resume)
-
+    device = args.device
     if args.resume:
-        checkpoint = torch.load(args.resume, map_location='gpu') 
+        checkpoint = torch.load(args.resume, map_location=device) 
         if 'ema' in checkpoint:
             state = checkpoint['ema']['module']
         else:
@@ -32,7 +32,7 @@ def main(args, ):
     cfg.model.load_state_dict(state)
 
     class Model(nn.Module):
-        def __init__(self, ) -> None:
+        def __init__(self) -> None:
             super().__init__()
             self.model = cfg.model.deploy()
             self.postprocessor = cfg.postprocessor.deploy()
@@ -41,17 +41,19 @@ def main(args, ):
         def forward(self, images, orig_target_sizes):
             outputs = self.model(images)
             return self.postprocessor(outputs, orig_target_sizes)
+            # return outputs, orig_target_sizes
     
 
-    model = Model()
+    model = Model().to(device)
+    
 
     dynamic_axes = {
         'images': {0: 'N', },
         'orig_target_sizes': {0: 'N'}
     }
 
-    data = torch.rand(1, 3, 640, 640)
-    size = torch.tensor([[640, 640]])
+    data = torch.rand(1, 3, 640, 640).to(device)
+    size = torch.tensor([[640, 640]]).to(device)
 
     torch.onnx.export(
         model, 
@@ -129,6 +131,7 @@ if __name__ == '__main__':
     parser.add_argument('--config', '-c', type=str, )
     parser.add_argument('--resume', '-r', type=str, )
     parser.add_argument('--file-name', '-f', type=str, default='model.onnx')
+    parser.add_argument('--device', '-d', type=str, default='cuda')
     parser.add_argument('--check',  action='store_true', default=False,)
     parser.add_argument('--simplify',  action='store_true', default=False,)
 
