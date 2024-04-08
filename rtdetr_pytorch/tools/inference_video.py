@@ -23,6 +23,7 @@ def get_ort_session(model_path):
     providers = [("CUDAExecutionProvider", {"device_id": torch.cuda.current_device(),})]
     sess_options = ort.SessionOptions()
     ort_session = ort.InferenceSession(model_path, sess_options=sess_options, providers=providers)
+    ort_session.disable_fallback()
     return ort_session
 
 def inference_imgs(ort_session, input_data):
@@ -142,7 +143,7 @@ if __name__=='__main__':
     parser.add_argument('--show-stream', '-ss', action='store_true', default=True)
     parser.add_argument('--size', '-s', type=int, default=640)
     parser.add_argument('--save-video', '-sv', type=str, default='', help='have to be mkv. set empty to not save the output')
-    parser.add_argument('--print-fromat', '', type=str, default='', help='empty or json')
+    parser.add_argument('--print-format', '-pf', type=str, default='', help='empty or json')
     args = parser.parse_args()
 
     main(args)

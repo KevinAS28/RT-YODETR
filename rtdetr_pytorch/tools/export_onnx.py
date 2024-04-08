@@ -20,7 +20,7 @@ def main(args, ):
     cfg = YAMLConfig(args.config, resume=args.resume)
 
     if args.resume:
-        checkpoint = torch.load(args.resume, map_location='cpu') 
+        checkpoint = torch.load(args.resume, map_location='gpu') 
         if 'ema' in checkpoint:
             state = checkpoint['ema']['module']
         else:
