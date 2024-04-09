@@ -90,7 +90,7 @@ class DetSolver(BaseSolver):
                 log_stats = {**{f'train_{k}': v for k, v in train_stats.items()},
                             **{f'test_{k}': v for k, v in test_stats.items()},
                             'epoch': epoch,
-                            'n_parameters': n_parameters}
+                            'n_parameters': n_all_parameters}
 
                 if self.output_dir and dist.is_main_process():
                     with (self.output_dir / "log.txt").open("a") as f:
