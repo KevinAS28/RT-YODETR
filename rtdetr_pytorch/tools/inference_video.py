@@ -227,8 +227,8 @@ if __name__=='__main__':
     parser.add_argument('--print-format', '-pf', type=str, default='', help='empty or json')
     parser.add_argument('--encoder', type=str, default='XVID', help='XVID MJPG MPEG')
     parser.add_argument('--classes-labels', '-c', type=str, default='inference_class_labels', help='name_label: index_label | by json path or the json string')
-    parser.add_argument('--show-name', '-c', action='store_true', default=True, help='Show object name on the top of the bounding box')
-    parser.add_argument('--show-confidence', '-c', action='store_true', default=True, help='Show object prediction confidence on the top of the bounding box')
+    parser.add_argument('--show-name', '-sn', action='store_true', default=False, help='Show object name on the top of the bounding box')
+    parser.add_argument('--show-confidence', '-sc', action='store_true', default=False, help='Show object prediction confidence on the top of the bounding box')
     args = parser.parse_args()
 
     main(args)
