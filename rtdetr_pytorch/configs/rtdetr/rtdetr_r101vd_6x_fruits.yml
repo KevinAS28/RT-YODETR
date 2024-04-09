@@ -7,6 +7,8 @@ __include__: [
   './include/backup.yml',
 ]
 
+output_dir: ./output/rtdetr_r101vd_6x_cocotrimmed
+
 PResNet:
   depth: 101
 
