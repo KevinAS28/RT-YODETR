@@ -67,7 +67,7 @@ def isjson(json_content):
     except json.JSONDecodeError:
         return False
 
-def stream_video(video_path, inference_engine, size, classes_labels, encoder='XVID', thrh=0.65, show_stream=False, out_video_path=''):
+def stream_video(video_path, inference_engine, size, classes_labels, encoder='XVID', thrh=0.65, show_stream=False, out_video_path='', draw_obj_name=True, draw_obj_conf=True):
     cap = cv2.VideoCapture(video_path)
     save_video_output = len(out_video_path)>0
 
@@ -77,7 +77,6 @@ def stream_video(video_path, inference_engine, size, classes_labels, encoder='XV
         fourcc_code = cv2.VideoWriter_fourcc(*encoder)
         video_writer = cv2.VideoWriter(out_video_path, fourcc_code, 25.0, (size, size))  # Adjust FPS if needed
     
-
     if not cap.isOpened():
         print("Error opening video!")
         exit()
@@ -137,12 +136,13 @@ def stream_video(video_path, inference_engine, size, classes_labels, encoder='XV
                     b = [int(j) for j in b]
                     # print('s l b', s, l, b)
 
-                    scr_str = '-'+str(round(s*100, 1))+'%'
+                    lab_str = str(classes_labels[l]) if draw_obj_name else ''
+                    scr_str = ('-' if draw_obj_name else '' + str(round(s*100, 1))+'%') if draw_obj_conf else ''
                     
-                    detected_class_frame[classes_labels[l]] += 1                        
-                    lab_str = str(classes_labels[l])+'-'
                     postprocessed_frame = cv2.rectangle(postprocessed_frame, tuple(b[:2]), tuple(b[2:4]), color=(0, 0, 255), thickness=2)  # Red rectangle
                     postprocessed_frame = cv2.putText(postprocessed_frame, f"{lab_str}{scr_str}", tuple(b[:2]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)  # White text        
+
+                    detected_class_frame[classes_labels[l]] += 1                        
 
             if (show_stream or save_video_output):
                 postprocessed_frame = cv2.putText(postprocessed_frame, f"FPS: {fps:.2f}", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)  # White text           
@@ -194,7 +194,7 @@ def main(args):
     classes_labels = {v:k for k, v in classes_labels.items()}
     print(classes_labels)
 
-    frame_count, eplased_time, fps, avg_inference_time, detected_class_frame = stream_video(args.video, inference_engine, args.size, classes_labels, args.encoder, args.threshold, args.show_stream, args.save_video)
+    frame_count, eplased_time, fps, avg_inference_time, detected_class_frame = stream_video(args.video, inference_engine, args.size, classes_labels, args.encoder, args.threshold, args.show_stream, args.save_video, args.show_name, args.show_confidence)
     if args.print_format in ['', 'empty']:
         print('Frame count:', frame_count)
         print('Eplased time: ', f'{eplased_time:.4f}s')
@@ -227,10 +227,12 @@ if __name__=='__main__':
     parser.add_argument('--print-format', '-pf', type=str, default='', help='empty or json')
     parser.add_argument('--encoder', type=str, default='XVID', help='XVID MJPG MPEG')
     parser.add_argument('--classes-labels', '-c', type=str, default='inference_class_labels', help='name_label: index_label | by json path or the json string')
+    parser.add_argument('--show-name', '-c', action='store_true', default=True, help='Show object name on the top of the bounding box')
+    parser.add_argument('--show-confidence', '-c', action='store_true', default=True, help='Show object prediction confidence on the top of the bounding box')
     args = parser.parse_args()
 
     main(args)
 
 # python3 tools/inference_video.py --model=/home/kevin/Custom-RT-DETR/rtdetr_pytorch/rtdetr_yolov9ebb_ep27.pth --engine=torch --video=/home/kevin/Custom-RT-DETR/rtdetr_pytorch/bicycle_thief.mp4 --save-video=out.mkv --size=640 --model-conf=/home/kevin/Custom-RT-DETR/rtdetr_pytorch/configs/rtdetr/rtdetr_cyolov9ebb_L_cocotrimmed.yml
 
-# python tools/inference_video.py --model="C:\Users\kevin\Documents\Custom-RT-DETR\rtdetr_pytorch\rtdetr_yolov9ebb_ep27.pth" --engine=torch --video="C:\Users\kevin\Documents\Custom-RT-DETR\rtdetr_pytorch\bicycle_thief.mp4" --save-video=out.mkv --size=640 --model-conf="C:\Users\kevin\Documents\Custom-RT-DETR\rtdetr_pytorch\configs\rtdetr\rtdetr_cyolov9ebb_L_cocotrimmed.yml" --show-stream
+# python tools/inference_video.py --model="C:\Users\kevin\Documents\Custom-RT-DETR\rtdetr_pytorch\rtdetr_yolov9ebb_ep27.pth" --engine=torch --video="C:\Users\kevin\Documents\Custom-RT-DETR\rtdetr_pytorch\bicycle_thief.mp4" --save-video=out.mkv --size=640 --model-conf="C:\Users\kevin\Documents\Custom-RT-DETR\rtdetr_pytorch\configs\rtdetr\rtdetr_cyolov9ebb_L_cocotrimmed.yml" --classes-labels="C:\Users\kevin\Documents\Custom-RT-DETR\rtdetr_pytorch\tools\inference_class_labels.json" --show-stream
