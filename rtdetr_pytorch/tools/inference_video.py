@@ -234,7 +234,7 @@ def main(args):
     classes_labels = {v:k for k, v in classes_labels.items()}
     print(classes_labels)
 
-    lines = [('h', 0, 320, 640, 320)]
+    lines = [('h', 0, 450, 640, 450)]
     postprocessor = lambda frame, l, s, b: additional_postprocessor(lines, frame, l, s, b)
 
     frame_count, eplased_time, fps, avg_inference_time, detected_class_frame = stream_video(args.video, inference_engine, args.size, classes_labels, args.encoder, args.threshold, args.show_stream, args.save_video, args.show_name, args.show_confidence, postprocessor)
