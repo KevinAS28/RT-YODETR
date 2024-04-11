@@ -204,13 +204,14 @@ def stream_video(video_path, inference_engine, size, classes_labels, encoder='XV
 
     return frame_count, eplased_time, fps, avg_inference_time, detected_class_frame
 
-def additional_postprocessor(lines, frame, s, l, b, invert=False):
+def additional_postprocessor(lines, frame, s, l, b, invert=False, objects_to_warn=['person']):
     for ln in lines:
         ln_type, ln = ln[0], ln[1:]
         ln_bx = line_to_box(ln, frame.shape, ln_type, invert)
         frame = add_overlay(frame, ln_bx, 0, 255, 0.25, invert)
-        if obj_crossed_line(b, ln, ln_type, invert):
-            print(f'WARNINGL OBJECT {l} HAS BEEN DETECTED')
+        if l in objects_to_warn:
+            if obj_crossed_line(b, ln, ln_type, invert):
+                print(f'WARNING: OBJECT {l} HAS BEEN DETECTED')
     return frame
 
 def main(args):
