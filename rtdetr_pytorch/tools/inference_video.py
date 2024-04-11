@@ -52,7 +52,7 @@ def rectangles_intersect(rect0, rect1, invert=False):
 
 def obj_crossed_line(obj_bbox, line, line_type='h', invert=False):
   def _algo():
-    points = [obj_bbox[:2], obj_bbox[2:4], [obj_bbox[0], obj_bbox[2]], [obj_bbox[1], obj_bbox[3]]]
+    points = [obj_bbox[:2], obj_bbox[2:4], [obj_bbox[2], obj_bbox[1]], [obj_bbox[0], obj_bbox[3]]]
 
     # check vertical
     if line_type=='v':
