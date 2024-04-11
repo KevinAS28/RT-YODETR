@@ -7,67 +7,95 @@ import json
 
 import cv2
 import torch
-import torch.nn as nn 
 from torchvision.transforms import v2 as trfmv2
-import onnxruntime as ort 
+import numpy as np
 
-from src.core import YAMLConfig
+from tools.inf_utils import *
 
-def get_ort_session(model_path):
-    # ort.set_default_logger_severity(1)
-    print('ONNX device:', ort.get_device())
-    providers = ['CUDAExecutionProvider']
-    sess_options = ort.SessionOptions()
-    ort_session = ort.InferenceSession(model_path, sess_options=sess_options, providers=providers)
-    return ort_session
-
-def get_torch_model(cfg_path, model_path):
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    print('Torch device:', device, torch.cuda.get_device_name() if device=='cuda' else 'CPU')
-
-    cfg = YAMLConfig(cfg_path, resume=model_path)
-    checkpoint = torch.load(model_path, map_location=device) 
-    if 'ema' in checkpoint:
-        print('Using EMA from state')
-        state = checkpoint['ema']['module']
+def line_to_box(line, img_shape, line_type='h', invert=False):
+  line = list(line)
+  if line_type=='h':
+    if not invert:
+      line[2] = img_shape[0]
+      line[3] = img_shape[1]
     else:
-        print('not using EMA')
-        state = checkpoint['model']        
+      line[2] = 0
+      line[3] = 0
+  elif line_type=='v':
+    if not invert:
+      line[2] = img_shape[0]
+      line[3] = img_shape[1]
+    else:
+      line[2] = 0
+      line[3] = img_shape[0]
+  else:
+    raise ValueError(f'Line type {line_type} is not supported')  
+  return line
+                               
+def rectangles_intersect(rect0, rect1, invert=False):
+  
+  if (rect0[0]**2+rect0[1]**2)**(1/2) < (rect1[0]**2+rect1[1]**2)**(1/2):
+    print('0')
+    conditions = (
+      rect0[2]>=rect1[0] and rect0[3]>=rect1[1],
+      rect1[2]>=rect0[0] and rect1[3]<=rect0[1],  
+    )
+  else:
+    print('1')
+    conditions = (
+      rect1[2]>=rect0[0] and rect1[3]>=rect0[3],
+      rect1[3]>=rect0[1] and rect1[2]>=rect0[0],
+    )
+  result = any(conditions)
+
+  return not result if invert else result
+
+def obj_crossed_line(obj_bbox, line, line_type='h', invert=False):
+  def _algo():
+    points = [obj_bbox[:2], obj_bbox[2:4], [obj_bbox[0], obj_bbox[2]], [obj_bbox[1], obj_bbox[3]]]
+
+    # check vertical
+    if line_type=='v':
+      for pt in points:
+        if pt[0]>line[0]:
+          return True
+      return False
     
-    cfg.model.load_state_dict(state)
+    elif line_type=='h':
+      for pt in points:
+        if pt[1]>line[1]:
+          return True
+      
+      return False
+    
+    else:
+      raise 'line not supported'
 
-    class RTDETRModelDeploy(nn.Module):
-        def __init__(self) -> None:
-            super().__init__()
-            self.model = cfg.model.deploy()
-            self.postprocessor = cfg.postprocessor.deploy()
-            print(self.postprocessor.deploy_mode)
-            
-        def forward(self, images, orig_target_sizes):
-            outputs = self.model(images)
-            return self.postprocessor(outputs, orig_target_sizes)    
-            
-    model = RTDETRModelDeploy().to(device)        
+  return _algo() and not invert
 
-    return model, device
+def add_overlay(img, rect, channel_index, color_value, alpha=0.5, invert=False):
+    start_w, start_h, end_w, end_h = rect
+    height, width, channels = img.shape
 
-def inference_imgs_torch(model, input_data, size, device):
-    orig_target_sizes = torch.tensor([[size, size]]).to(device)
-    labels, boxes, scores = model(input_data.to(device), orig_target_sizes)
-    return labels, boxes, scores
+    new_colors = [0,0,0,alpha*255]
+    new_colors[channel_index] = color_value
 
-def inference_imgs_onnx(ort_session, input_data, size):
-    orig_target_sizes = torch.tensor([[size, size]])
-    labels, boxes, scores = ort_session.run(None, {'images': input_data.data.numpy(), 'orig_target_sizes': orig_target_sizes.data.numpy()})
-    return labels, boxes, scores
+    if invert:
+        overlay = np.full((img.shape[0], img.shape[1], 4), new_colors, dtype=np.uint8)
+        overlay_rgb = overlay[..., :channels] 
+        mask = np.ones_like(img, dtype=bool)
+        mask[start_h:end_h, start_w:end_w] = False
+        img = (1 - alpha) * img + alpha * overlay_rgb * mask.astype(np.float32)
+        img = img.astype(np.uint8)
+    else:
+        overlay = np.full((end_h - start_h, end_w - start_w, 4), new_colors, dtype=np.uint8)
+        overlay_rgb = overlay[..., :channels] 
+        img[start_h:end_h, start_w:end_w] = (1 - alpha) * img[start_h:end_h, start_w:end_w] + alpha * overlay_rgb
 
-def isjson(json_content):
-    try:
-        return json.loads(json_content)
-    except json.JSONDecodeError:
-        return False
+    return img
 
-def stream_video(video_path, inference_engine, size, classes_labels, encoder='XVID', thrh=0.65, show_stream=False, out_video_path='', draw_obj_name=True, draw_obj_conf=True):
+
+def stream_video(video_path, inference_engine, size, classes_labels, encoder='XVID', thrh=0.65, show_stream=False, out_video_path='', draw_obj_name=True, draw_obj_conf=True, additional_postprocessor=lambda frame, s, l, b: frame):
     cap = cv2.VideoCapture(video_path)
     save_video_output = len(out_video_path)>0
 
@@ -139,13 +167,15 @@ def stream_video(video_path, inference_engine, size, classes_labels, encoder='XV
                     lab_str = str(classes_labels[l]) if draw_obj_name else ''
                     scr_str = ('-' if draw_obj_name else '' + str(round(s*100, 1))+'%') if draw_obj_conf else ''
                     
+                    postprocessed_frame = additional_postprocessor(postprocessed_frame, s, lab_str, b)
                     postprocessed_frame = cv2.rectangle(postprocessed_frame, tuple(b[:2]), tuple(b[2:4]), color=(0, 0, 255), thickness=2)  # Red rectangle
-                    postprocessed_frame = cv2.putText(postprocessed_frame, f"{lab_str}{scr_str}", tuple(b[:2]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)  # White text        
-
+                    postprocessed_frame = cv2.putText(postprocessed_frame, f"{lab_str}{scr_str}", tuple(b[:2]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)  # White text                            
                     detected_class_frame[classes_labels[l]] += 1                        
 
             if (show_stream or save_video_output):
                 postprocessed_frame = cv2.putText(postprocessed_frame, f"FPS: {fps:.2f}", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)  # White text           
+            
+            
 
             if show_stream:
                 cv2.imshow("Video with Object Detection", postprocessed_frame)    
@@ -174,6 +204,15 @@ def stream_video(video_path, inference_engine, size, classes_labels, encoder='XV
 
     return frame_count, eplased_time, fps, avg_inference_time, detected_class_frame
 
+def additional_postprocessor(lines, frame, s, l, b, invert=False):
+    for ln in lines:
+        ln_type, ln = ln[0], ln[1:]
+        ln_bx = line_to_box(ln, frame.shape, ln_type, invert)
+        frame = add_overlay(frame, ln_bx, 0, 255, 0.25, invert)
+        if obj_crossed_line(b, ln, ln_type, invert):
+            print(f'WARNINGL OBJECT {l} HAS BEEN DETECTED')
+    return frame
+
 def main(args):
     if args.engine=='onnx':
         ort_session = get_ort_session(args.model)
@@ -194,7 +233,10 @@ def main(args):
     classes_labels = {v:k for k, v in classes_labels.items()}
     print(classes_labels)
 
-    frame_count, eplased_time, fps, avg_inference_time, detected_class_frame = stream_video(args.video, inference_engine, args.size, classes_labels, args.encoder, args.threshold, args.show_stream, args.save_video, args.show_name, args.show_confidence)
+    lines = [('h', 0, 320, 640, 320)]
+    postprocessor = lambda frame, l, s, b: additional_postprocessor(lines, frame, l, s, b)
+
+    frame_count, eplased_time, fps, avg_inference_time, detected_class_frame = stream_video(args.video, inference_engine, args.size, classes_labels, args.encoder, args.threshold, args.show_stream, args.save_video, args.show_name, args.show_confidence, postprocessor)
     if args.print_format in ['', 'empty']:
         print('Frame count:', frame_count)
         print('Eplased time: ', f'{eplased_time:.4f}s')
@@ -233,6 +275,6 @@ if __name__=='__main__':
 
     main(args)
 
-# python3 tools/inference_video.py --model=/home/kevin/Custom-RT-DETR/rtdetr_pytorch/rtdetr_yolov9ebb_ep27.pth --engine=torch --video=/home/kevin/Custom-RT-DETR/rtdetr_pytorch/bicycle_thief.mp4 --save-video=out.mkv --size=640 --model-conf=/home/kevin/Custom-RT-DETR/rtdetr_pytorch/configs/rtdetr/rtdetr_cyolov9ebb_L_cocotrimmed.yml --show-name --show-confidence
+# python3 tools/inference_video.py --model=/home/kevin/Custom-RT-DETR/rtdetr_pytorch/rtdetr_yolov9ebb_ep27.pth --engine=torch --video=/home/kevin/Custom-RT-DETR/rtdetr_pytorch/bicycle_thief.mp4 --save-video=out.mkv --size=640 --model-conf=/home/kevin/Custom-RT-DETR/rtdetr_pytorch/configs/rtdetr/rtdetr_cyolov9ebb_L_cocotrimmed.yml --classes-labels='/home/kevin/Custom-RT-DETR/rtdetr_pytorch/tools/inference_class_labels.json' --show-name --show-confidence
 
 # python tools/inference_video.py --model="C:\Users\kevin\Documents\Custom-RT-DETR\rtdetr_pytorch\rtdetr_yolov9ebb_ep27.pth" --engine=torch --video="C:\Users\kevin\Documents\Custom-RT-DETR\rtdetr_pytorch\bicycle_thief.mp4" --save-video=out.mkv --size=640 --model-conf="C:\Users\kevin\Documents\Custom-RT-DETR\rtdetr_pytorch\configs\rtdetr\rtdetr_cyolov9ebb_L_cocotrimmed.yml" --classes-labels="C:\Users\kevin\Documents\Custom-RT-DETR\rtdetr_pytorch\tools\inference_class_labels.json" --show-stream --show-name --show-confidence
