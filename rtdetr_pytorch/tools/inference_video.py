@@ -81,7 +81,8 @@ def add_overlay(img, rect, channel_index, color_value, alpha=0.5, invert=False):
     new_colors[channel_index] = color_value
 
     if invert:
-        overlay = np.full((img.shape[0], img.shape[1], 4), new_colors, dtype=np.uint8)
+        print(height, width, start_h, end_h, start_w, end_w)
+        overlay = np.full((height, width, 4), new_colors, dtype=np.uint8)
         overlay_rgb = overlay[..., :channels] 
         mask = np.ones_like(img, dtype=bool)
         mask[start_h:end_h, start_w:end_w] = False
@@ -95,7 +96,7 @@ def add_overlay(img, rect, channel_index, color_value, alpha=0.5, invert=False):
     return img
 
 
-def stream_video(video_path, inference_engine, size, classes_labels, encoder='XVID', thrh=0.65, show_stream=False, out_video_path='', draw_obj_name=True, draw_obj_conf=True, additional_postprocessor=lambda frame, s, l, b: frame):
+def stream_video(video_path, inference_engine, size, classes_labels, encoder='XVID', thrh=0.65, show_stream=False, out_video_path='', draw_obj_name=True, draw_obj_conf=True, additional_postprocessor=lambda frame: frame, obj_warning=lambda s,l,b: None):
     cap = cv2.VideoCapture(video_path)
     save_video_output = len(out_video_path)>0
 
@@ -152,9 +153,11 @@ def stream_video(video_path, inference_engine, size, classes_labels, encoder='XV
             boxes = boxes[img_index]
 
             postprocessed_frame = cv2.cvtColor(cv2.resize(frame, (size, size)), cv2.COLOR_BGR2RGB)
+            postprocessed_frame = additional_postprocessor(postprocessed_frame)
+
             frame_count += 1
             fps = frame_count / eplased_time
-
+            
             if (show_stream or save_video_output)  and len(lab)>0:
                 for s, l, b in zip(scr, lab, boxes):
                     if s<=thrh:
@@ -167,15 +170,13 @@ def stream_video(video_path, inference_engine, size, classes_labels, encoder='XV
                     lab_str = str(classes_labels[l]) if draw_obj_name else ''
                     scr_str = ('-' if draw_obj_name else '' + str(round(s*100, 1))+'%') if draw_obj_conf else ''
                     
-                    postprocessed_frame = additional_postprocessor(postprocessed_frame, s, lab_str, b)
                     postprocessed_frame = cv2.rectangle(postprocessed_frame, tuple(b[:2]), tuple(b[2:4]), color=(0, 0, 255), thickness=2)  # Red rectangle
                     postprocessed_frame = cv2.putText(postprocessed_frame, f"{lab_str}{scr_str}", tuple(b[:2]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)  # White text                            
+                    obj_warning(s, lab_str, b)
                     detected_class_frame[classes_labels[l]] += 1                        
 
             if (show_stream or save_video_output):
                 postprocessed_frame = cv2.putText(postprocessed_frame, f"FPS: {fps:.2f}", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)  # White text           
-            
-            
 
             if show_stream:
                 cv2.imshow("Video with Object Detection", postprocessed_frame)    
@@ -204,15 +205,22 @@ def stream_video(video_path, inference_engine, size, classes_labels, encoder='XV
 
     return frame_count, eplased_time, fps, avg_inference_time, detected_class_frame
 
-def additional_postprocessor(lines, frame, s, l, b, invert=False, objects_to_warn=['person']):
+def frame_overlay(lines, frame, invert=False):
     for ln in lines:
         ln_type, ln = ln[0], ln[1:]
-        ln_bx = line_to_box(ln, frame.shape, ln_type, invert)
+        ln_bx = line_to_box(ln, frame.shape, ln_type, False)
         frame = add_overlay(frame, ln_bx, 0, 255, 0.25, invert)
-        if l in objects_to_warn:
-            if obj_crossed_line(b, ln, ln_type, invert):
-                print(f'WARNING: OBJECT {l} HAS BEEN DETECTED')
+
     return frame
+
+def object_warnings(lines, s, l, b, objects_to_warn=['person'], invert=False):
+    for ln in lines:
+        ln_type, ln = ln[0], ln[1:]    
+        obj_crossed = False
+        if l in objects_to_warn:
+            obj_crossed = obj_crossed_line(b, ln, ln_type, invert)
+            if obj_crossed:
+                print(f'WARNING: OBJECT {l} HAS CROSSED THE LINE')      
 
 def main(args):
     if args.engine=='onnx':
@@ -232,12 +240,24 @@ def main(args):
     else:
         raise ValueError('Invalid JSON classes labels')
     classes_labels = {v:k for k, v in classes_labels.items()}
-    print(classes_labels)
 
-    lines = [('h', 0, 450, 640, 450)]
-    postprocessor = lambda frame, l, s, b: additional_postprocessor(lines, frame, l, s, b)
+    if len(args.overlay)>0:
+        # lines = [('h', 0, 450, 640, 450)]
+        # invert = False        
+        line = args.overlay.split('_')
+        line_coord = [int(i) for i in line[1:5]]
+        line_invert = bool(int(line[-1]))
+        line_orientation = line[0]
+        lines = [[line_orientation, *line_coord]]
+        invert = line_invert
 
-    frame_count, eplased_time, fps, avg_inference_time, detected_class_frame = stream_video(args.video, inference_engine, args.size, classes_labels, args.encoder, args.threshold, args.show_stream, args.save_video, args.show_name, args.show_confidence, postprocessor)
+        postprocessor = lambda frame: frame_overlay(lines, frame, invert)
+        obj_warn = lambda s,l,b: object_warnings(lines, s, l, b, objects_to_warn=['person'], invert=invert)
+    else:
+       postprocessor = lambda frame: frame
+       obj_warn = lambda s,l,b: None    
+
+    frame_count, eplased_time, fps, avg_inference_time, detected_class_frame = stream_video(args.video, inference_engine, args.size, classes_labels, args.encoder, args.threshold, args.show_stream, args.save_video, args.show_name, args.show_confidence, postprocessor, obj_warn)
     if args.print_format in ['', 'empty']:
         print('Frame count:', frame_count)
         print('Eplased time: ', f'{eplased_time:.4f}s')
@@ -272,10 +292,11 @@ if __name__=='__main__':
     parser.add_argument('--classes-labels', '-c', type=str, default='inference_class_labels', help='name_label: index_label | by json path or the json string')
     parser.add_argument('--show-name', '-sn', action='store_true', default=False, help='Show object name on the top of the bounding box')
     parser.add_argument('--show-confidence', '-sc', action='store_true', default=False, help='Show object prediction confidence on the top of the bounding box')
+    parser.add_argument('--overlay', '-ol', type=str, default='h_0_450_640_450_0', help='Line overlay to detect any objects crossing the line format: (line orientation v|h)_startx_starty_endx_endy_(invert 0|1). Example: --overlay=h_0_450_640_450_0')
     args = parser.parse_args()
 
     main(args)
 
-# python3 tools/inference_video.py --model=/home/kevin/Custom-RT-DETR/rtdetr_pytorch/rtdetr_yolov9ebb_ep27.pth --engine=torch --video=/home/kevin/Custom-RT-DETR/rtdetr_pytorch/bicycle_thief.mp4 --save-video=out.mkv --size=640 --model-conf=/home/kevin/Custom-RT-DETR/rtdetr_pytorch/configs/rtdetr/rtdetr_cyolov9ebb_L_cocotrimmed.yml --classes-labels='/home/kevin/Custom-RT-DETR/rtdetr_pytorch/tools/inference_class_labels.json' --show-name --show-confidence
+# python3 tools/inference_video.py --model=/home/kevin/Custom-RT-DETR/rtdetr_pytorch/rtdetr_yolov9ebb_ep27.pth --engine=torch --video=/home/kevin/Custom-RT-DETR/rtdetr_pytorch/bicycle_thief.mp4 --save-video=out.mkv --size=640 --model-conf=/home/kevin/Custom-RT-DETR/rtdetr_pytorch/configs/rtdetr/rtdetr_cyolov9ebb_L_cocotrimmed.yml --classes-labels='/home/kevin/Custom-RT-DETR/rtdetr_pytorch/tools/inference_class_labels.json' --show-name --show-confidence 
 
-# python tools/inference_video.py --model="C:\Users\kevin\Documents\Custom-RT-DETR\rtdetr_pytorch\rtdetr_yolov9ebb_ep27.pth" --engine=torch --video="C:\Users\kevin\Documents\Custom-RT-DETR\rtdetr_pytorch\bicycle_thief.mp4" --save-video=out.mkv --size=640 --model-conf="C:\Users\kevin\Documents\Custom-RT-DETR\rtdetr_pytorch\configs\rtdetr\rtdetr_cyolov9ebb_L_cocotrimmed.yml" --classes-labels="C:\Users\kevin\Documents\Custom-RT-DETR\rtdetr_pytorch\tools\inference_class_labels.json" --show-stream --show-name --show-confidence
+# python tools/inference_video.py --model="C:\Users\kevin\Documents\Custom-RT-DETR\rtdetr_pytorch\rtdetr_yolov9ebb_ep27.pth" --engine=torch --video="C:\Users\kevin\Documents\Custom-RT-DETR\rtdetr_pytorch\bicycle_thief.mp4" --save-video=out.mkv --size=640 --model-conf="C:\Users\kevin\Documents\Custom-RT-DETR\rtdetr_pytorch\configs\rtdetr\rtdetr_cyolov9ebb_L_cocotrimmed.yml" --classes-labels="C:\Users\kevin\Documents\Custom-RT-DETR\rtdetr_pytorch\tools\inference_class_labels.json" --show-stream --show-name --show-confidence --overlay=h_0_450_640_450_0
