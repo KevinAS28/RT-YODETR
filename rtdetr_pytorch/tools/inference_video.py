@@ -15,33 +15,31 @@ from tools.inf_utils import *
 def line_to_box(line, img_shape, line_type='h', invert=False):
   line = list(line)
   if line_type=='h':
-    if not invert:
-      line[2] = img_shape[0]
-      line[3] = img_shape[1]
-    else:
-      line[2] = 0
-      line[3] = 0
+    if not invert: # [0, 400]
+      line = [0, line[1], img_shape[0], img_shape[1]] # [0, 400, 640, 640]
+    else: # [0, 400]
+      line = [0, line[0], img_shape[0], line[1]] # [0, 0, 400, 640]
   elif line_type=='v':
-    if not invert:
-      line[2] = img_shape[0]
-      line[3] = img_shape[1]
+    if not invert: # [400, 0]
+      line = [line[0], 0, img_shape[0], img_shape[1]] # [400, 0, 640, 640]
     else:
-      line[2] = 0
-      line[3] = img_shape[0]
+      line = [0, 0, line[0], img_shape[1]] # [0, 0, 400, 640]
   else:
     raise ValueError(f'Line type {line_type} is not supported')  
+  
+  x1, y1, x2, y2 = line # 640, 0, 0, 640 | 0, 300, 200, 0
+  if x1>x2 or y1>y2:
+    return [x2, y2, x1, y1]  # Swap coords
   return line
                                
 def rectangles_intersect(rect0, rect1, invert=False):
   
   if (rect0[0]**2+rect0[1]**2)**(1/2) < (rect1[0]**2+rect1[1]**2)**(1/2):
-    print('0')
     conditions = (
       rect0[2]>=rect1[0] and rect0[3]>=rect1[1],
       rect1[2]>=rect0[0] and rect1[3]<=rect0[1],  
     )
   else:
-    print('1')
     conditions = (
       rect1[2]>=rect0[0] and rect1[3]>=rect0[3],
       rect1[3]>=rect0[1] and rect1[2]>=rect0[0],
@@ -50,28 +48,38 @@ def rectangles_intersect(rect0, rect1, invert=False):
 
   return not result if invert else result
 
+def is_bbox_intersection(bbox1, bbox2):
+  if bbox2[0] > bbox1[2] or bbox1[0] > bbox2[2]:
+    return False
+  if bbox2[1] > bbox1[3] or bbox1[1] > bbox2[3]:
+    return False 
+  return True
+
 def obj_crossed_line(obj_bbox, line, line_type='h', invert=False):
-  def _algo():
-    points = [obj_bbox[:2], obj_bbox[2:4], [obj_bbox[2], obj_bbox[1]], [obj_bbox[0], obj_bbox[3]]]
+    '''
+        DEPRECATED, NEXT TIME USE is_bbox_intersection()
+    '''
+    def _algo():
+        points = [obj_bbox[:2], obj_bbox[2:4], [obj_bbox[2], obj_bbox[1]], [obj_bbox[0], obj_bbox[3]]]
 
-    # check vertical
-    if line_type=='v':
-      for pt in points:
-        if pt[0]>line[0]:
-          return True
-      return False
-    
-    elif line_type=='h':
-      for pt in points:
-        if pt[1]>line[1]:
-          return True
-      
-      return False
-    
-    else:
-      raise 'line not supported'
+        # check vertical
+        if line_type=='v':
+            for pt in points:
+                if pt[0]>line[0]:
+                    return True
+            return False
+        
+        elif line_type=='h':
+            for pt in points:
+                if pt[1]>line[1]:
+                    return True
+        
+            return False
+        
+        else:
+            raise 'line not supported'
 
-  return _algo() and not invert
+    return _algo() and not invert
 
 def add_overlay(img, rect, channel_index, color_value, alpha=0.5, invert=False):
     start_w, start_h, end_w, end_h = rect
