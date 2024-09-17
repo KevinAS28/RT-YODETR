@@ -1,27 +1,27 @@
-English | [简体中文](README_cn.md)
-
-
-<h2 align="center">RT-DETR: DETRs Beat YOLOs on Real-time Object Detection</h2>
+<h2 align="center">RT-YODETR: Modified RT-DETR with YOLO (v9) backbone </h2>
+<h4 align="center">Official RT-DETR repository: https://github.com/lyuwenyu/RT-DETR </h4>
+<h4 align="center">Official YOLOv9 repository: https://github.com/WongKinYiu/yolov9 </h4>
 <p align="center">
     <!-- <a href="https://github.com/lyuwenyu/RT-DETR/blob/main/LICENSE">
         <img alt="license" src="https://img.shields.io/badge/LICENSE-Apache%202.0-blue">
     </a> -->
-    <a href="https://github.com/lyuwenyu/RT-DETR/blob/main/LICENSE">
+    <a href="https://github.com/KevinAS28/RT-YODETR/blob/main/LICENSE">
         <img alt="license" src="https://img.shields.io/github/license/lyuwenyu/RT-DETR">
     </a>
-    <a href="https://github.com/lyuwenyu/RT-DETR/pulls">
+    <a href="https://github.com/KevinAS28/RT-YODETR/pulls">
         <img alt="prs" src="https://img.shields.io/github/issues-pr/lyuwenyu/RT-DETR">
     </a>
-    <a href="https://github.com/lyuwenyu/RT-DETR/issues">
+    <a href="https://github.com/KevinAS28/RT-YODETR/issues">
         <img alt="issues" src="https://img.shields.io/github/issues/lyuwenyu/RT-DETR?color=pink">
     </a>
-    <a href="https://github.com/lyuwenyu/RT-DETR">
+    <a href="https://github.com/KevinAS28/RT-YODETR">
         <img alt="issues" src="https://img.shields.io/github/stars/lyuwenyu/RT-DETR">
     </a>
-    <a href="https://arxiv.org/abs/2304.08069">
+    <a href="">
         <img alt="arXiv" src="https://img.shields.io/badge/arXiv-2304.08069-red">
+        SOON PUBLISHED
     </a>
-    <a href="mailto: lyuwenyu@foxmail.com">
+    <a href="mailto: kevinagusto28@foxmail.com">
         <img alt="emal" src="https://img.shields.io/badge/contact_me-email-yellow">
     </a>
 </p>
