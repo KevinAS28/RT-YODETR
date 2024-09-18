@@ -18,10 +18,10 @@
         <img alt="issues" src="https://img.shields.io/github/stars/lyuwenyu/RT-DETR">
     </a>
     <a href="">
-        <img alt="arXiv" src="https://img.shields.io/badge/arXiv-2304.08069-red">
-        SOON PUBLISHED
+        <!--img alt="arXiv" src="https://img.shields.io/badge/arXiv-2304.08069-red"-->
+        PAPER SOON PUBLISHED
     </a>
-    <a href="mailto: kevinagusto28@foxmail.com">
+    <a href="mailto: kevinagusto28@gmail.com">
         <img alt="emal" src="https://img.shields.io/badge/contact_me-email-yellow">
     </a>
 </p>
