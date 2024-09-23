@@ -30,7 +30,7 @@
 <details>
 <summary>Fig</summary>
 
-![ppdetr_overview](https://github.com/lyuwenyu/RT-DETR/assets/17582080/737f0d94-e028-4793-967e-201bdde57a5a)
+![mAP score](assets/map.png)
 </details>
 
 
