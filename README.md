@@ -6,16 +6,16 @@
         <img alt="license" src="https://img.shields.io/badge/LICENSE-Apache%202.0-blue">
     </a> -->
     <a href="https://github.com/KevinAS28/RT-YODETR/blob/main/LICENSE">
-        <img alt="license" src="https://img.shields.io/github/license/lyuwenyu/RT-DETR">
+        <img alt="license" src="https://img.shields.io/github/license/KevinAS28/RT-YODETR">
     </a>
     <a href="https://github.com/KevinAS28/RT-YODETR/pulls">
-        <img alt="prs" src="https://img.shields.io/github/issues-pr/lyuwenyu/RT-DETR">
+        <img alt="prs" src="https://img.shields.io/github/issues-pr/KevinAS28/RT-YODETR">
     </a>
     <a href="https://github.com/KevinAS28/RT-YODETR/issues">
-        <img alt="issues" src="https://img.shields.io/github/issues/lyuwenyu/RT-DETR?color=pink">
+        <img alt="issues" src="https://img.shields.io/github/issues/KevinAS28/RT-YODETR?color=pink">
     </a>
     <a href="https://github.com/KevinAS28/RT-YODETR">
-        <img alt="issues" src="https://img.shields.io/github/stars/lyuwenyu/RT-DETR">
+        <img alt="issues" src="https://img.shields.io/github/stars/KevinAS28/RT-YODETR">
     </a>
     <a href="">
         <!--img alt="arXiv" src="https://img.shields.io/badge/arXiv-2304.08069-red"-->
